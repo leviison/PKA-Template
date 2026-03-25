@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PKA — System Diagrams</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0f0f11;
+      --bg-card:     #18181c;
+      --bg-sidebar:  #141417;
+      --bg-input:    #1e1e24;
+      --border:      #2a2a32;
+      --border-soft: #222228;
+
+      --text-primary:   #e8e8ec;
+      --text-secondary: #8a8a9a;
+      --text-tertiary:  #555560;
+      --text-link:      #7c8cf8;
+
+      --accent:     #7c8cf8;
+      --accent-dim: rgba(124, 140, 248, 0.12);
+      --accent-border: rgba(124, 140, 248, 0.3);
+
+      --radius:    10px;
+      --radius-sm: 6px;
+
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+              "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "SF Mono", "Cascadia Code", "Fira Code", ui-monospace,
+                   "Courier New", monospace;
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── HEADER ───────────────────────────────────────────────────── */
+
+    .site-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border-soft);
+      background: var(--bg-sidebar);
+    }
+
+    .logo-mark {
+      width: 34px;
+      height: 34px;
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+
+    .site-header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.2px;
+    }
+
+    .site-header .subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-left: auto;
+    }
+
+    /* ─── TAB NAV ──────────────────────────────────────────────────── */
+
+    .tab-nav {
+      display: flex;
+      gap: 2px;
+      padding: 16px 40px 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-sidebar);
+    }
+
+    .tab-btn {
+      padding: 9px 20px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+      position: relative;
+      top: 1px;
+      letter-spacing: 0.1px;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background: var(--bg-input);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      background: var(--bg);
+      border-color: var(--border);
+      border-bottom-color: var(--bg);
+    }
+
+    /* ─── CONTENT ──────────────────────────────────────────────────── */
+
+    .tab-panel {
+      visibility: hidden;
+      position: absolute;
+      pointer-events: none;
+      padding: 48px 40px 80px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .tab-panel.active {
+      visibility: visible;
+      position: relative;
+      pointer-events: auto;
+    }
+
+    /* ─── DIAGRAM BLOCKS ───────────────────────────────────────────── */
+
+    .diagram-block {
+      margin-bottom: 64px;
+    }
+
+    .diagram-block:last-child {
+      margin-bottom: 0;
+    }
+
+    .diagram-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-sm);
+      padding: 3px 9px;
+      margin-bottom: 12px;
+    }
+
+    .diagram-block h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      letter-spacing: -0.3px;
+    }
+
+    .diagram-caption {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      max-width: 720px;
+    }
+
+    .diagram-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .diagram-wrap .mermaid {
+      width: 100%;
+      min-width: 600px;
+    }
+
+    /* Force mermaid SVG to fill container */
+    .diagram-wrap .mermaid svg {
+      width: 100% !important;
+      height: auto !important;
+    }
+
+    /* ─── SECTION DIVIDER (Engineering tab) ───────────────────────── */
+
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 48px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .section-divider:first-of-type {
+      padding-top: 0;
+    }
+
+    /* Tab 1 intro */
+    .tab-intro {
+      margin-bottom: 40px;
+    }
+
+    .tab-intro h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.4px;
+    }
+
+    .tab-intro p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 640px;
+    }
+
+    /* ─── DB CONNECT CONTROLS ───────────────────────────────────────── */
+
+    .header-db-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .btn-connect {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 13px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-connect:hover {
+      border-color: var(--accent-border);
+      color: var(--text-primary);
+    }
+
+    .btn-refresh {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 11px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-refresh:hover { opacity: 0.8; }
+
+    #fallback-db-input { display: none; }
+
+    /* ─── STATIC FALLBACK BANNER ────────────────────────────────────── */
+
+    .static-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      color: #c9913a;
+    }
+
+    .static-banner-dismiss {
+      background: transparent;
+      border: none;
+      color: #c9913a;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+
+    .static-banner-dismiss:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="logo-mark">PK</div>
+    <h1>PKA — System Diagrams</h1>
+    <div class="header-db-controls">
+      <button class="btn-connect" id="btn-connect-db">
+        <svg width="12" height="12" viewBox="0 0 15 15" fill="none">
+          <path d="M7.5 1C4.46 1 2 2.57 2 4.5v6C2 12.43 4.46 14 7.5 14s5.5-1.57 5.5-3.5v-6C13 2.57 10.54 1 7.5 1z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+          <ellipse cx="7.5" cy="4.5" rx="5.5" ry="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
+          <path d="M2 7.5c0 .83 2.46 1.5 5.5 1.5S13 8.33 13 7.5" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        Connect pka.db
+      </button>
+      <button class="btn-refresh" id="btn-refresh-db">&#8635; Refresh</button>
+      <input type="file" id="fallback-db-input" accept=".db,application/octet-stream" />
+    </div>
+  </header>
+
+  <!-- TAB NAV -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('workflow', this)">Workflow</button>
+    <button class="tab-btn" onclick="switchTab('engineering', this)">Engineering</button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 1 — WORKFLOW
+  ════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-workflow" class="tab-panel active">
+    <div class="tab-intro">
+      <h2>PKA Operational Workflow</h2>
+      <p>End-to-end view of how work enters the system, gets routed by Leroy, is executed by the team, and flows back to Levi — including task, hiring, and asset-review paths.</p>
+    </div>
+
+    <div id="static-banner" class="static-banner">
+      <span>Connect pka.db to see live team roster — or viewing static snapshot</span>
+      <button class="static-banner-dismiss" onclick="document.getElementById('static-banner').style.display='none';" title="Dismiss">&times;</button>
+    </div>
+
+    <div class="diagram-block">
+      <div class="diagram-wrap">
+        <div class="mermaid" id="workflow-diagram">
+flowchart TD
+
+  subgraph OWN["Owner Layer"]
+    direction TB
+    LEVI["👤 Levi\nOwner — source of all intent"]
+    LEVI_GATE{"Levi Approval\nGate"}
+  end
+
+  subgraph ORCH["Orchestration Layer"]
+    direction TB
+    LEROY["🤖 Leroy\nOrchestrator — routes, never works"]
+  end
+
+  subgraph TEAM["Team Layer"]
+    direction TB
+    SAM["Sam\nPersona Architect"]
+    PAX["PAX\nResearch + Asset Analyst"]
+    ROWAN["Rowan\nKnowledge Interface Dev"]
+  end
+
+  subgraph STORE["Storage Layer"]
+    direction TB
+    TINBOX["Team Inbox/\nOwner drops raw assets"]
+    TCOMMS["Team Comms/\nTransient brief files"]
+    OINBOX["Owners Inbox/\nDeliverables + tools"]
+    DB[("pka.db\nSQLite — permanent record")]
+  end
+
+  subgraph FEED["Feedback Loop"]
+    direction TB
+    RATING["Levi rates deliverable\n1–5 stars"]
+    FTABLE["feedback table\nrating + notes stored"]
+    SAMREV["Sam reviews low ratings"]
+    PUPDATE["Persona updated\nif needed"]
+    RATING --> FTABLE --> SAMREV --> PUPDATE
+  end
+
+  %% Entry
+  LEVI -->|"All intent flows through"| LEROY
+
+  %% ── PATH 1: Task Flow ──────────────────────────────────────────────
+  LEROY -->|"1 · Task: writes brief_ref.md"| TCOMMS
+  TCOMMS -->|"Team member reads brief"| ROWAN
+  TCOMMS -->|"Team member reads brief"| SAM
+  TCOMMS -->|"Team member reads brief"| PAX
+  ROWAN -->|"Delivers to"| OINBOX
+  SAM -->|"Delivers to"| OINBOX
+  PAX -->|"Delivers to"| OINBOX
+  OINBOX -->|"Levi reviews"| RATING
+
+  %% ── PATH 2: Hiring Flow ────────────────────────────────────────────
+  LEROY -->|"2 · Gap identified"| SAM
+  SAM -->|"Research request"| PAX
+  PAX -->|"Research complete"| SAM
+  SAM -->|"Persona draft"| LEVI_GATE
+  LEVI_GATE -->|"Approved"| TEAM
+
+  %% ── PATH 3: Asset Review Flow ──────────────────────────────────────
+  LEVI -->|"3 · Drops file"| TINBOX
+  TINBOX -->|"PAX picks up"| PAX
+  PAX -->|"Extracts content"| DB
+  DB -->|"Viewer queries"| OINBOX
+
+  %% DB writes
+  ROWAN -->|"Inserts rows"| DB
+  SAM -->|"Inserts rows"| DB
+  LEROY -->|"briefs + deliverables rows"| DB
+        </div>
+      </div>
+      <p class="diagram-caption" style="margin-top:14px;">All work originates with Levi, routes through Leroy as orchestrator, executes across the team, and returns to Levi via Owners Inbox — with every action permanently recorded in pka.db.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 2 — ENGINEERING
+  ════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-engineering" class="tab-panel">
+
+    <!-- 2a — Folder Structure -->
+    <div class="diagram-block">
+      <div class="diagram-label">2a</div>
+      <h2>Folder Structure</h2>
+      <p class="diagram-caption">The PKA filesystem layout — each directory has a single, defined purpose and maps directly to a role or workflow stage.</p>
+      <div class="diagram-wrap">
+        <div class="mermaid">
+flowchart LR
+
+  ROOT["📁 PKA/"]
+
+  ROOT --> TINBOX["📂 Team Inbox/\nOwner drops raw assets here"]
+  ROOT --> TCOMMS["📂 Team Comms/\nTransient brief files\nLeroy writes · team reads · file deleted on completion"]
+  ROOT --> OINBOX["📂 Owners Inbox/\nDeliverables + reference tools"]
+  ROOT --> TDIR["📂 Team/\nPersona profile files\nOne file per team member"]
+  ROOT --> DBFILE["🗄️ pka.db\nSQLite + FTS5 database\nPermanent operational record"]
+
+  OINBOX --> VIEWER["📂 pka-viewer/\nAsset + knowledge browser"]
+  OINBOX --> WORKFLOW["📂 pka-workflow/\nThis document"]
+        </div>
+      </div>
+    </div>
+
+    <!-- 2b — Brief Lifecycle -->
+    <div class="diagram-block">
+      <div class="diagram-label">2b</div>
+      <h2>Brief Lifecycle</h2>
+      <p class="diagram-caption">A brief exists as a temporary markdown file only while work is in progress — the database row is the permanent record that survives after the file is deleted.</p>
+      <div class="diagram-wrap">
+        <div class="mermaid">
+flowchart TD
+
+  START(["Levi requests work"])
+
+  START --> LEROY_W["Leroy writes\nbrief_ref.md → Team Comms/"]
+  LEROY_W --> DB_INSERT["INSERT INTO briefs\nstatus open"]
+
+  DB_INSERT --> TEAM_READ["Team member reads brief file\nfrom filesystem — NOT from conversation\nContext isolation preserved"]
+
+  TEAM_READ --> WORK["Team member executes work"]
+  WORK --> DELIVER["Deliverable written to\nOwners Inbox/"]
+  DELIVER --> DB_DELIV["INSERT INTO deliverables\nbriefs.id FK + file_path"]
+
+  DB_DELIV --> FILE_DELETE["brief_ref.md DELETED\nfrom Team Comms/"]
+  FILE_DELETE --> DB_UPDATE["UPDATE briefs SET\nstatus complete\ncompleted_at set"]
+
+  DB_UPDATE --> FEEDBACK["Levi reviews deliverable\nand provides rating"]
+  FEEDBACK --> DB_FEED["INSERT INTO feedback\nrating · notes · brief_ref"]
+
+  DB_FEED --> DONE(["Work cycle complete"])
+
+  FILE_DELETE -.->|"FILE IS TRANSIENT\ndeleted after use"| NOTE_FILE(["🗑️ File gone"])
+  DB_UPDATE -.->|"DB RECORD IS PERMANENT\nsurvives forever"| NOTE_DB(["🗄️ Row preserved"])
+
+        </div>
+      </div>
+    </div>
+
+    <!-- 2c — Database Schema -->
+    <div class="diagram-block">
+      <div class="diagram-label">2c</div>
+      <h2>Database Schema</h2>
+      <p class="diagram-caption">The full pka.db entity-relationship diagram — assets feed content, briefs produce deliverables which collect feedback, with journal, knowledge, and settings as standalone tables.</p>
+      <div class="diagram-wrap">
+        <div class="mermaid">
+erDiagram
+
+  assets {
+    int id PK
+    string filename
+    string path
+    string type
+    string status
+  }
+
+  content {
+    int id PK
+    int asset_id FK
+    string content_type
+    string body
+  }
+
+  briefs {
+    int id PK
+    string brief_ref
+    string assigned_to
+    string status
+    string completed_at
+  }
+
+  deliverables {
+    int id PK
+    int brief_id FK
+    string file_path
+    string created_by
+    string created_at
+  }
+
+  feedback {
+    int id PK
+    string brief_ref
+    string team_member
+    int rating
+    string notes
+    string created_at
+  }
+
+  journal {
+    int id PK
+    string date
+    string title
+    string body
+    string tags
+  }
+
+  knowledge {
+    int id PK
+    string title
+    string body
+    string tags
+  }
+
+  settings {
+    string key PK
+    string value
+  }
+
+  assets ||--o{ content : "extracted into"
+  briefs ||--o{ deliverables : "produces"
+  deliverables ||--o{ feedback : "rated by"
+        </div>
+      </div>
+    </div>
+
+    <!-- 2d — Asset → Viewer Data Flow -->
+    <div class="diagram-block">
+      <div class="diagram-label">2d</div>
+      <h2>Asset → Viewer Data Flow</h2>
+      <p class="diagram-caption">The path a raw file takes from Levi dropping it in Team Inbox to appearing as a searchable, browsable asset card in the PKA viewer.</p>
+      <div class="diagram-wrap">
+        <div class="mermaid">
+flowchart LR
+
+  DROP["Levi drops file\nTeam Inbox/"]
+
+  DROP --> REG["PAX registers file\nassets table\nstatus: pending"]
+
+  REG --> EXTRACT["PAX reads file\nand extracts content"]
+
+  EXTRACT --> CONTENT["INSERT INTO content\nasset_id FK · body · content_type"]
+  EXTRACT --> STATUS["UPDATE assets SET\nstatus: processed"]
+
+  CONTENT --> DB_READY[("pka.db\nready for query")]
+  STATUS --> DB_READY
+
+  DB_READY --> SQLJS["Levi opens viewer\nsql.js loads pka.db\ninto browser memory"]
+
+  SQLJS --> QUERY["Viewer queries:\nSELECT * FROM content\nWHERE asset_id = ?"]
+
+  QUERY --> RENDER["Asset card rendered\nwith inline research section"]
+
+  RENDER --> FTS["FTS5 search available\nSELECT FROM content_fts\nWHERE content_fts MATCH ?"]
+
+  FTS --> RESULTS["Search results\nreturned to viewer"]
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-engineering -->
+
+  <!-- MERMAID CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0f0f11',
+        primaryColor: '#1e1e24',
+        primaryTextColor: '#e8e8f0',
+        lineColor: '#8888aa',
+        edgeLabelBackground: '#1e1e24'
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () { mermaid.run(); }, 100);
+    });
+
+    function switchTab(name, btn) {
+      // Deactivate all
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+      // Activate selected
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // ─── SQL.JS CONSTANTS ────────────────────────────────────────────────────
+
+    const SQL_JS_CDN = 'https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.js';
+    const WASM_URL   = 'https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.wasm';
+
+    // ─── STATE ───────────────────────────────────────────────────────────────
+
+    const state = {
+      db: null
+    };
+
+    // ─── SQL.JS LOADER ───────────────────────────────────────────────────────
+
+    async function loadSqlJs() {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = SQL_JS_CDN;
+        script.onload = async () => {
+          try {
+            const SQL = await window.initSqlJs({ locateFile: f => WASM_URL });
+            resolve(SQL);
+          } catch (e) { reject(e); }
+        };
+        script.onerror = () => reject(new Error('Failed to load sql.js from CDN'));
+        document.head.appendChild(script);
+      });
+    }
+
+    function queryToRows(sql, params = []) {
+      const result = state.db.exec(sql, params);
+      if (!result.length) return [];
+      const { columns, values } = result[0];
+      return values.map(row => {
+        const obj = {};
+        columns.forEach((col, i) => obj[col] = row[i]);
+        return obj;
+      });
+    }
+
+    // ─── BUILD WORKFLOW MERMAID ──────────────────────────────────────────────
+
+    async function buildWorkflowMermaid() {
+      const members = queryToRows(
+        `SELECT name, short_role FROM team_members WHERE active = 1`
+      );
+
+      // Generate MEMBER_ID: uppercase, spaces → underscores
+      const membersWithId = members.map(m => ({
+        id: m.name.toUpperCase().replace(/\s+/g, '_'),
+        name: m.name,
+        short_role: m.short_role
+      }));
+
+      // Build dynamic TEAM subgraph nodes
+      const teamNodes = membersWithId
+        .map(m => `    ${m.id}["${m.name}\\n${m.short_role}"]`)
+        .join('\n');
+
+      // Build edges: TCOMMS → member
+      const edgesFromComms = membersWithId
+        .map(m => `  TCOMMS -->|"reads brief"| ${m.id}`)
+        .join('\n');
+
+      // Build edges: member → OINBOX
+      const edgesToOinbox = membersWithId
+        .map(m => `  ${m.id} -->|"delivers to"| OINBOX`)
+        .join('\n');
+
+      // Build DB write edges (for members that insert rows — all active members)
+      const edgesDbWrites = membersWithId
+        .filter(m => m.id !== 'LEROY')
+        .map(m => `  ${m.id} -->|"Inserts rows"| DB`)
+        .join('\n');
+
+      const diagram = `flowchart TD
+
+  subgraph OWN["Owner Layer"]
+    direction TB
+    LEVI["👤 Levi\\nOwner — source of all intent"]
+    LEVI_GATE{"Levi Approval\\nGate"}
+  end
+
+  subgraph ORCH["Orchestration Layer"]
+    direction TB
+    LEROY["🤖 Leroy\\nOrchestrator — routes, never works"]
+  end
+
+  subgraph TEAM["Team Layer"]
+    direction TB
+${teamNodes}
+  end
+
+  subgraph STORE["Storage Layer"]
+    direction TB
+    TINBOX["Team Inbox/\\nOwner drops raw assets"]
+    TCOMMS["Team Comms/\\nTransient brief files"]
+    OINBOX["Owners Inbox/\\nDeliverables + tools"]
+    DB[("pka.db\\nSQLite — permanent record")]
+  end
+
+  subgraph FEED["Feedback Loop"]
+    direction TB
+    RATING["Levi rates deliverable\\n1–5 stars"]
+    FTABLE["feedback table\\nrating + notes stored"]
+    SAMREV["Sam reviews low ratings"]
+    PUPDATE["Persona updated\\nif needed"]
+    RATING --> FTABLE --> SAMREV --> PUPDATE
+  end
+
+  %% Entry
+  LEVI -->|"All intent flows through"| LEROY
+
+  %% ── PATH 1: Task Flow ──────────────────────────────────────────────
+  LEROY -->|"1 · Task: writes brief_ref.md"| TCOMMS
+${edgesFromComms}
+${edgesToOinbox}
+  OINBOX -->|"Levi reviews"| RATING
+
+  %% ── PATH 2: Hiring Flow ────────────────────────────────────────────
+  LEROY -->|"2 · Gap identified"| SAM
+  SAM -->|"Research request"| PAX
+  PAX -->|"Research complete"| SAM
+  SAM -->|"Persona draft"| LEVI_GATE
+  LEVI_GATE -->|"Approved"| TEAM
+
+  %% ── PATH 3: Asset Review Flow ──────────────────────────────────────
+  LEVI -->|"3 · Drops file"| TINBOX
+  TINBOX -->|"PAX picks up"| PAX
+  PAX -->|"Extracts content"| DB
+  DB -->|"Viewer queries"| OINBOX
+
+  %% DB writes
+${edgesDbWrites}
+  LEROY -->|"briefs + deliverables rows"| DB`;
+
+      const el = document.getElementById('workflow-diagram');
+      el.removeAttribute('data-processed');
+      el.textContent = diagram;
+      await mermaid.run({ nodes: [el] });
+    }
+
+    // ─── CONNECT DB ──────────────────────────────────────────────────────────
+
+    async function connectDb(arrayBuffer) {
+      try {
+        if (!window._SQL) {
+          window._SQL = await loadSqlJs();
+        }
+        const SQL = window._SQL;
+        if (state.db) { state.db.close(); state.db = null; }
+        state.db = new SQL.Database(new Uint8Array(arrayBuffer));
+
+        // Hide static fallback banner
+        const banner = document.getElementById('static-banner');
+        if (banner) banner.style.display = 'none';
+
+        // Show refresh button
+        const btnRefresh = document.getElementById('btn-refresh-db');
+        btnRefresh.style.display = 'inline-flex';
+
+        await buildWorkflowMermaid();
+      } catch (e) {
+        alert('Could not load database: ' + e.message);
+      }
+    }
+
+    async function openDbFile() {
+      try {
+        if ('showOpenFilePicker' in window) {
+          const [fileHandle] = await window.showOpenFilePicker({
+            types: [{ description: 'SQLite Database', accept: { 'application/octet-stream': ['.db'] } }],
+            multiple: false,
+          });
+          const file = await fileHandle.getFile();
+          const buf = await file.arrayBuffer();
+          await connectDb(buf);
+        } else {
+          document.getElementById('fallback-db-input').click();
+        }
+      } catch (e) {
+        if (e.name !== 'AbortError') {
+          alert('Could not open file: ' + e.message);
+        }
+      }
+    }
+
+    // ─── EVENT LISTENERS ─────────────────────────────────────────────────────
+
+    document.getElementById('btn-connect-db').addEventListener('click', openDbFile);
+
+    document.getElementById('btn-refresh-db').addEventListener('click', function () {
+      if (state.db) buildWorkflowMermaid();
+    });
+
+    document.getElementById('fallback-db-input').addEventListener('change', async function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const buf = await file.arrayBuffer();
+      await connectDb(buf);
+      e.target.value = '';
+    });
+
+    // ─── BROWSER COMPAT ──────────────────────────────────────────────────────
+
+    // No UI to show/hide for fallback here — we trigger it programmatically from openDbFile()
+  </script>
+
+</body>
+</html>

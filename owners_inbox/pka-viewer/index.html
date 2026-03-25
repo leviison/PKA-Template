@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PKA Viewer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0f0f11;
+      --bg-card:     #18181c;
+      --bg-sidebar:  #141417;
+      --bg-input:    #1e1e24;
+      --border:      #2a2a32;
+      --border-soft: #222228;
+
+      --text-primary:   #e8e8ec;
+      --text-secondary: #8a8a9a;
+      --text-tertiary:  #555560;
+      --text-link:      #7c8cf8;
+
+      --accent:     #7c8cf8;
+      --accent-dim: rgba(124, 140, 248, 0.12);
+
+      --status-open:     #3b82f6;
+      --status-open-bg:  rgba(59, 130, 246, 0.12);
+      --status-active:   #f59e0b;
+      --status-active-bg: rgba(245, 158, 11, 0.12);
+      --status-complete: #22c55e;
+      --status-complete-bg: rgba(34, 197, 94, 0.12);
+
+      --tag-bg:   rgba(124, 140, 248, 0.1);
+      --tag-text: #9aa3f5;
+
+      --sidebar-w: 240px;
+      --radius:    10px;
+      --radius-sm: 6px;
+
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+              "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "SF Mono", "Cascadia Code", "Fira Code", ui-monospace,
+                   "Courier New", monospace;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── LANDING ─────────────────────────────────────────────────── */
+
+    #landing {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 28px;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .landing-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .landing-logo .logo-mark {
+      width: 42px;
+      height: 42px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(124, 140, 248, 0.3);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .landing-logo .logo-text {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .landing-logo .logo-text span {
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    .landing-tagline {
+      font-size: 15px;
+      color: var(--text-secondary);
+      max-width: 360px;
+      line-height: 1.7;
+    }
+
+    .btn-open {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 11px 22px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      letter-spacing: -0.01em;
+    }
+
+    .btn-open:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-open:active { opacity: 1; transform: translateY(0); }
+
+    .btn-open svg { flex-shrink: 0; }
+
+    .landing-note {
+      font-size: 12.5px;
+      color: var(--text-tertiary);
+      max-width: 340px;
+    }
+
+    /* ─── FALLBACK FILE INPUT ─────────────────────────────────────── */
+
+    #fallback-input {
+      display: none;
+    }
+
+    .fallback-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 18px;
+      font-size: 13px;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .fallback-label:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    /* ─── APP SHELL ───────────────────────────────────────────────── */
+
+    #app {
+      display: none;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #app.visible {
+      display: flex;
+    }
+
+    /* ─── SIDEBAR ─────────────────────────────────────────────────── */
+
+    #sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-soft);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 20px 18px 14px;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-logo-mark {
+      width: 28px;
+      height: 28px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(124, 140, 248, 0.25);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+    }
+
+    .sidebar-subtitle {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 1px;
+    }
+
+    .sidebar-section-label {
+      padding: 16px 18px 6px;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    #table-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 10px 16px;
+    }
+
+    #table-list::-webkit-scrollbar { width: 4px; }
+    #table-list::-webkit-scrollbar-track { background: transparent; }
+    #table-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .table-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.1s;
+      gap: 8px;
+    }
+
+    .table-item:hover { background: rgba(255,255,255,0.04); }
+    .table-item.active { background: var(--accent-dim); }
+    .table-item.active .table-name { color: var(--accent); }
+
+    .table-item-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .table-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .table-name {
+      font-size: 13.5px;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .table-count {
+      font-size: 11.5px;
+      color: var(--text-tertiary);
+      background: rgba(255,255,255,0.05);
+      padding: 1px 7px;
+      border-radius: 20px;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sidebar-footer {
+      padding: 12px 18px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .btn-reload {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      font-family: var(--font);
+      cursor: pointer;
+      width: 100%;
+      justify-content: center;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .btn-reload:hover { border-color: var(--accent); color: var(--text-primary); }
+
+    /* ─── MAIN CONTENT ────────────────────────────────────────────── */
+
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ─── TOPBAR ──────────────────────────────────────────────────── */
+
+    #topbar {
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    #topbar-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+
+    #topbar-count {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      white-space: nowrap;
+    }
+
+    #search-wrapper {
+      flex: 1;
+      max-width: 420px;
+      margin-left: auto;
+      position: relative;
+    }
+
+    #search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-tertiary);
+      pointer-events: none;
+      display: flex;
+    }
+
+    #search-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px 8px 34px;
+      font-size: 13.5px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    #search-input::placeholder { color: var(--text-tertiary); }
+    #search-input:focus { border-color: var(--accent); }
+
+    /* ─── CONTENT AREA ────────────────────────────────────────────── */
+
+    #content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px;
+    }
+
+    #content-area::-webkit-scrollbar { width: 6px; }
+    #content-area::-webkit-scrollbar-track { background: transparent; }
+    #content-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ─── EMPTY / WELCOME STATE ───────────────────────────────────── */
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 12px;
+      color: var(--text-tertiary);
+      text-align: center;
+    }
+
+    .empty-state .empty-icon {
+      font-size: 36px;
+      margin-bottom: 4px;
+    }
+
+    .empty-state h3 {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .empty-state p {
+      font-size: 13.5px;
+      max-width: 300px;
+      line-height: 1.7;
+    }
+
+    /* ─── CARD GRID ───────────────────────────────────────────────── */
+
+    .cards-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .cards-grid.journal-grid {
+      grid-template-columns: 1fr;
+      max-width: 760px;
+    }
+
+    .cards-grid.knowledge-grid {
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    }
+
+    .cards-grid.briefs-grid {
+      grid-template-columns: 1fr;
+      max-width: 760px;
+    }
+
+    /* ─── JOURNAL CARD ────────────────────────────────────────────── */
+
+    .journal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      transition: border-color 0.15s;
+    }
+
+    .journal-card:hover { border-color: var(--border); }
+
+    .journal-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .journal-date {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .journal-mood {
+      font-size: 11.5px;
+      color: var(--text-tertiary);
+      background: rgba(255,255,255,0.05);
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid var(--border-soft);
+    }
+
+    .journal-project {
+      font-size: 11.5px;
+      color: var(--text-link);
+      background: var(--accent-dim);
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .journal-card-title {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .journal-card-body {
+      font-size: 14.5px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .journal-card-body.truncated {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 6;
+      overflow: hidden;
+      white-space: normal;
+    }
+
+    .expand-btn {
+      background: none;
+      border: none;
+      color: var(--text-link);
+      font-size: 12.5px;
+      font-family: var(--font);
+      cursor: pointer;
+      padding: 6px 0 0;
+      display: block;
+    }
+
+    .expand-btn:hover { text-decoration: underline; }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .tag-pill {
+      font-size: 11.5px;
+      color: var(--tag-text);
+      background: var(--tag-bg);
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid rgba(124, 140, 248, 0.18);
+    }
+
+    /* ─── KNOWLEDGE CARD ──────────────────────────────────────────── */
+
+    .knowledge-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.15s;
+    }
+
+    .knowledge-card:hover { border-color: var(--border); }
+
+    .knowledge-card-title {
+      font-size: 15.5px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+
+    .knowledge-card-body {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+      flex: 1;
+    }
+
+    .knowledge-card-body.truncated {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 5;
+      overflow: hidden;
+      white-space: normal;
+    }
+
+    .knowledge-source {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      padding-top: 2px;
+    }
+
+    .knowledge-source span { color: var(--text-secondary); }
+
+    /* ─── BRIEF CARD ──────────────────────────────────────────────── */
+
+    .brief-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      transition: border-color 0.15s;
+    }
+
+    .brief-card:hover { border-color: var(--border); }
+
+    .brief-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brief-ref {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      background: rgba(255,255,255,0.05);
+      padding: 3px 8px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .brief-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+    }
+
+    .status-badge.open {
+      color: var(--status-open);
+      background: var(--status-open-bg);
+    }
+
+    .status-badge.active {
+      color: var(--status-active);
+      background: var(--status-active-bg);
+    }
+
+    .status-badge.complete {
+      color: var(--status-complete);
+      background: var(--status-complete-bg);
+    }
+
+    .status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .brief-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .brief-meta-item {
+      font-size: 12.5px;
+      color: var(--text-tertiary);
+    }
+
+    .brief-meta-item strong {
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .brief-body {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .brief-body.truncated {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      overflow: hidden;
+      white-space: normal;
+    }
+
+    /* ─── GENERIC TABLE VIEW ──────────────────────────────────────── */
+
+    .data-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    .data-table th {
+      background: rgba(255,255,255,0.03);
+      color: var(--text-tertiary);
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 11px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-soft);
+      white-space: nowrap;
+    }
+
+    .data-table td {
+      padding: 10px 16px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-soft);
+      vertical-align: top;
+      max-width: 300px;
+      word-break: break-word;
+    }
+
+    .data-table tr:last-child td { border-bottom: none; }
+
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .cell-null {
+      color: var(--text-tertiary);
+      font-style: italic;
+      font-size: 12px;
+    }
+
+    .cell-number {
+      font-variant-numeric: tabular-nums;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+    }
+
+    /* ─── SEARCH RESULTS ──────────────────────────────────────────── */
+
+    .search-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+      margin-top: 24px;
+    }
+
+    .search-section-label:first-child { margin-top: 0; }
+
+    .search-highlight {
+      background: rgba(245, 200, 11, 0.2);
+      color: #f5c811;
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+
+    /* ─── LOADING ─────────────────────────────────────────────────── */
+
+    #loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 15, 17, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    #loading-overlay.visible { display: flex; }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── ERROR TOAST ─────────────────────────────────────────────── */
+
+    #error-toast {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2d1515;
+      border: 1px solid #5c2020;
+      color: #f87171;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      z-index: 200;
+      max-width: 480px;
+      text-align: center;
+    }
+
+    #error-toast.visible { display: block; }
+
+    /* ─── PAGINATION ──────────────────────────────────────────────── */
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 24px;
+      justify-content: center;
+    }
+
+    .page-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-family: var(--font);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--text-primary); }
+    .page-btn:disabled { opacity: 0.35; cursor: default; }
+
+    .page-info {
+      font-size: 12.5px;
+      color: var(--text-tertiary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ─── SCROLLBAR GLOBAL ────────────────────────────────────────── */
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    /* ─── ASSET CARDS (BRIEF-005) ─────────────────────────────────── */
+
+    .assets-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      max-width: 820px;
+    }
+
+    .asset-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      transition: border-color 0.15s;
+    }
+
+    .asset-card:hover { border-color: var(--border); }
+
+    .asset-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .asset-filename {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      flex: 1;
+      line-height: 1.4;
+      word-break: break-all;
+    }
+
+    .asset-badges {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    .badge-type {
+      background: rgba(255,255,255,0.06);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-soft);
+    }
+
+    .badge-status-pending {
+      background: rgba(100, 116, 139, 0.15);
+      color: #94a3b8;
+    }
+
+    .badge-status-processing {
+      background: var(--status-active-bg);
+      color: var(--status-active);
+    }
+
+    .badge-status-processed {
+      background: var(--status-complete-bg);
+      color: var(--status-complete);
+    }
+
+    .badge-status-archived {
+      background: rgba(255,255,255,0.05);
+      color: var(--text-tertiary);
+    }
+
+    .asset-meta-row {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .asset-meta-item {
+      font-size: 12.5px;
+      color: var(--text-tertiary);
+    }
+
+    .asset-meta-item strong {
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .asset-notes {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 14px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.025);
+      border-left: 2px solid var(--border);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    .btn-open-file {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 14px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-family: var(--font);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      margin-bottom: 18px;
+    }
+
+    .btn-open-file:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    .btn-open-file:disabled {
+      opacity: 0.38;
+      cursor: default;
+    }
+
+    /* ─── ASSET CONTENT SECTION ───────────────────────────────────── */
+
+    .asset-content-section {
+      border-top: 1px solid var(--border-soft);
+      padding-top: 16px;
+      margin-top: 4px;
+    }
+
+    .asset-content-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+    }
+
+    .content-row {
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      margin-bottom: 10px;
+    }
+
+    .content-row:last-child { margin-bottom: 0; }
+
+    .content-type-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+
+    .content-body {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .content-body h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 10px 0 4px;
+      letter-spacing: -0.01em;
+    }
+
+    .content-extracted {
+      font-size: 11.5px;
+      color: var(--text-tertiary);
+      margin-top: 8px;
+    }
+
+    .no-content-msg {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    /* ─── FILE PREVIEW MODALS (BRIEF-005) ─────────────────────────── */
+
+    /* Slide-in panel — PDF */
+    #pdf-panel {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: min(780px, 90vw);
+      height: 100vh;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #pdf-panel.open { right: 0; }
+
+    .pdf-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-soft);
+      flex-shrink: 0;
+    }
+
+    .pdf-panel-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-panel-close {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 5px 12px;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      font-family: var(--font);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .btn-panel-close:hover { border-color: var(--accent); color: var(--text-primary); }
+
+    #pdf-panel iframe {
+      flex: 1;
+      border: none;
+      background: #fff;
+    }
+
+    #pdf-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 290;
+    }
+
+    #pdf-backdrop.visible { display: block; }
+
+    /* Lightbox — images */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 400;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #lightbox.visible { display: flex; }
+
+    #lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+
+    /* Generic preview modal — text / unsupported */
+    #preview-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 400;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    #preview-modal.visible { display: flex; }
+
+    .preview-modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: min(680px, 100%);
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .preview-modal-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-soft);
+      flex-shrink: 0;
+    }
+
+    .preview-modal-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-modal-close {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 5px 12px;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      font-family: var(--font);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .btn-modal-close:hover { border-color: var(--accent); color: var(--text-primary); }
+
+    .preview-modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .preview-pre {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+    }
+
+    .preview-unsupported {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+    }
+
+    .preview-unsupported .preview-path {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--text-tertiary);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      margin-top: 10px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <span id="loading-msg">Loading database…</span>
+</div>
+
+<!-- ERROR TOAST -->
+<div id="error-toast"></div>
+
+<!-- LANDING PAGE -->
+<div id="landing">
+  <div class="landing-logo">
+    <div class="logo-mark">◈</div>
+    <div class="logo-text">PKA <span>Viewer</span></div>
+  </div>
+  <p class="landing-tagline">
+    A local-first interface for your personal knowledge archive.
+    No server. Your data stays on your machine.
+  </p>
+  <button class="btn-open" id="open-btn">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+      <path d="M2 3.5A1.5 1.5 0 013.5 2h3.293a1.5 1.5 0 011.06.44l.708.707A1.5 1.5 0 009.62 3.5H12A1.5 1.5 0 0113.5 5v6A1.5 1.5 0 0112 12.5H3A1.5 1.5 0 011.5 11V5A1.5 1.5 0 013 3.5z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+    </svg>
+    Open pka.db
+  </button>
+  <label class="fallback-label" id="fallback-label" style="display:none;">
+    <svg width="13" height="13" viewBox="0 0 15 15" fill="none">
+      <path d="M7.5 1v9M4 6l3.5 4L11 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M1.5 11.5v1a1 1 0 001 1h10a1 1 0 001-1v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>
+    Or pick a file (Firefox)
+    <input type="file" id="fallback-input" accept=".db,application/octet-stream" />
+  </label>
+  <p class="landing-note">
+    Works best in Chrome or Edge. A fallback file picker is shown for Firefox.
+  </p>
+</div>
+
+<!-- PDF SLIDE-IN PANEL (BRIEF-005) -->
+<div id="pdf-backdrop"></div>
+<div id="pdf-panel">
+  <div class="pdf-panel-header">
+    <span class="pdf-panel-title" id="pdf-panel-title"></span>
+    <button class="btn-panel-close" id="pdf-panel-close">Close</button>
+  </div>
+  <iframe id="pdf-panel-frame" title="PDF Preview"></iframe>
+</div>
+
+<!-- LIGHTBOX (BRIEF-005) -->
+<div id="lightbox" role="dialog" aria-label="Image preview">
+  <img id="lightbox-img" src="" alt="Preview" />
+</div>
+
+<!-- PREVIEW MODAL (BRIEF-005) -->
+<div id="preview-modal" role="dialog" aria-label="File preview">
+  <div class="preview-modal-box">
+    <div class="preview-modal-header">
+      <span class="preview-modal-title" id="preview-modal-title"></span>
+      <button class="btn-modal-close" id="preview-modal-close">Close</button>
+    </div>
+    <div class="preview-modal-body" id="preview-modal-body"></div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-mark">◈</div>
+      <div>
+        <div class="sidebar-title">PKA Viewer</div>
+        <div class="sidebar-subtitle" id="db-filename">—</div>
+      </div>
+    </div>
+    <div class="sidebar-section-label">Tables</div>
+    <div id="table-list"></div>
+    <div class="sidebar-footer">
+      <button class="btn-reload" id="reload-btn">
+        <svg width="12" height="12" viewBox="0 0 15 15" fill="none">
+          <path d="M1.5 7.5a6 6 0 106-6 6 6 0 00-3.3 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M1.5 2.5v3h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Open different file
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div id="topbar">
+      <div id="topbar-title">Select a table</div>
+      <div id="topbar-count"></div>
+      <div id="search-wrapper">
+        <span id="search-icon">
+          <svg width="14" height="14" viewBox="0 0 15 15" fill="none">
+            <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Search journal & knowledge…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+    </div>
+    <div id="content-area">
+      <div class="empty-state">
+        <div class="empty-icon">◈</div>
+        <h3>Database loaded</h3>
+        <p>Select a table from the sidebar to start browsing your knowledge.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ─── BRIEF-005 CHANGES ─────────────────────────────────────────────────────
+  // Added: renderAssets() — card layout with inline Research & Extracted Content
+  //        (queries content table by asset_id for each asset card)
+  // Added: directory picker prompt after DB load (optional, via showDirectoryPicker)
+  //        — handle stored in state.dirHandle; Open buttons disabled if skipped
+  // Added: openAssetFile() — file preview by type:
+  //        PDF → slide-in panel (blob URL in iframe)
+  //        Images → lightbox modal
+  //        Text/Markdown → scrollable pre-block modal
+  //        Other → path + note modal
+  // Changed: renderTable() switch now routes 'assets' → renderAssets()
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // ─── SQL.JS LOADER ─────────────────────────────────────────────────────────
+
+  const SQL_JS_CDN = 'https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.js';
+  const WASM_URL   = 'https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.wasm';
+
+  // ─── STATE ─────────────────────────────────────────────────────────────────
+
+  const state = {
+    db: null,
+    tables: [],
+    activeTable: null,
+    searchQuery: '',
+    page: 0,
+    pageSize: 40,
+    searchTimeout: null,
+    dirHandle: null,       // BRIEF-005: FileSystemDirectoryHandle for PKA root
+  };
+
+  // ─── UTILS ─────────────────────────────────────────────────────────────────
+
+  function showLoading(msg = 'Loading…') {
+    document.getElementById('loading-msg').textContent = msg;
+    document.getElementById('loading-overlay').classList.add('visible');
+  }
+
+  function hideLoading() {
+    document.getElementById('loading-overlay').classList.remove('visible');
+  }
+
+  function showError(msg) {
+    const toast = document.getElementById('error-toast');
+    toast.textContent = msg;
+    toast.classList.add('visible');
+    setTimeout(() => toast.classList.remove('visible'), 5000);
+  }
+
+  function fmtDate(str) {
+    if (!str) return null;
+    try {
+      const d = new Date(str);
+      if (isNaN(d)) return str;
+      return d.toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      });
+    } catch { return str; }
+  }
+
+  function fmtDateShort(str) {
+    if (!str) return null;
+    try {
+      const d = new Date(str);
+      if (isNaN(d)) return str;
+      return d.toLocaleDateString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric'
+      });
+    } catch { return str; }
+  }
+
+  function parseTags(raw) {
+    if (!raw) return [];
+    const s = raw.trim();
+    if (s.startsWith('[')) {
+      try {
+        const arr = JSON.parse(s);
+        return arr.map(t => String(t).trim()).filter(Boolean);
+      } catch {}
+    }
+    return s.split(',').map(t => t.trim()).filter(Boolean);
+  }
+
+  function renderTags(raw) {
+    const tags = parseTags(raw);
+    if (!tags.length) return '';
+    return `<div class="card-tags">${tags.map(t =>
+      `<span class="tag-pill">${esc(t)}</span>`).join('')}</div>`;
+  }
+
+  function esc(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function highlight(text, query) {
+    if (!query || !text) return esc(text);
+    const escaped = esc(text);
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return escaped.replace(new RegExp(`(${escapedQuery})`, 'gi'),
+      '<mark class="search-highlight">$1</mark>');
+  }
+
+  function queryToRows(sql, params = []) {
+    const result = state.db.exec(sql, params);
+    if (!result.length) return [];
+    const { columns, values } = result[0];
+    return values.map(row => {
+      const obj = {};
+      columns.forEach((col, i) => obj[col] = row[i]);
+      return obj;
+    });
+  }
+
+  function queryScalar(sql, params = []) {
+    const result = state.db.exec(sql, params);
+    if (!result.length || !result[0].values.length) return null;
+    return result[0].values[0][0];
+  }
+
+  // ─── DB INIT ───────────────────────────────────────────────────────────────
+
+  async function loadSqlJs() {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = SQL_JS_CDN;
+      script.onload = async () => {
+        try {
+          const SQL = await window.initSqlJs({ locateFile: f => WASM_URL });
+          resolve(SQL);
+        } catch (e) { reject(e); }
+      };
+      script.onerror = () => reject(new Error('Failed to load sql.js from CDN'));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function openDatabase(arrayBuffer) {
+    showLoading('Initialising sql.js…');
+    try {
+      if (!window._SQL) {
+        window._SQL = await loadSqlJs();
+      }
+      showLoading('Parsing database…');
+      const SQL = window._SQL;
+      if (state.db) { state.db.close(); state.db = null; }
+      state.db = new SQL.Database(new Uint8Array(arrayBuffer));
+      await populateSidebar();
+      switchToApp();
+      // BRIEF-005: prompt for optional folder access to enable file previews
+      await promptDirectoryAccess();
+    } catch (e) {
+      hideLoading();
+      showError('Could not open database: ' + e.message);
+      console.error(e);
+    }
+  }
+
+  // ─── DIRECTORY ACCESS (BRIEF-005) ──────────────────────────────────────────
+
+  async function promptDirectoryAccess() {
+    if (!('showDirectoryPicker' in window)) return;
+    try {
+      const handle = await window.showDirectoryPicker({ mode: 'read' });
+      state.dirHandle = handle;
+    } catch (e) {
+      // User declined or dismissed — viewer stays fully functional for DB browsing
+      state.dirHandle = null;
+    }
+  }
+
+  // Navigate a directory handle along a relative path like "Team Inbox/file.pdf"
+  async function resolveFileHandle(relPath) {
+    if (!state.dirHandle) return null;
+    const parts = relPath.split('/').filter(Boolean);
+    let dir = state.dirHandle;
+    try {
+      for (let i = 0; i < parts.length - 1; i++) {
+        dir = await dir.getDirectoryHandle(parts[i], { create: false });
+      }
+      return await dir.getFileHandle(parts[parts.length - 1], { create: false });
+    } catch {
+      return null;
+    }
+  }
+
+  // ─── SIDEBAR ───────────────────────────────────────────────────────────────
+
+  const TABLE_ICONS = {
+    journal:     '📓',
+    knowledge:   '💡',
+    briefs:      '📋',
+    assets:      '📎',
+    content:     '📄',
+    deliverables:'📦',
+  };
+
+  async function populateSidebar() {
+    const tables = queryToRows(
+      `SELECT name FROM sqlite_master WHERE type='table'
+       AND name NOT LIKE '%_fts%' AND name NOT LIKE 'sqlite_%'
+       ORDER BY name`
+    );
+
+    state.tables = tables.map(t => {
+      const count = queryScalar(`SELECT COUNT(*) FROM "${t.name}"`);
+      return { name: t.name, count };
+    });
+
+    const list = document.getElementById('table-list');
+    list.innerHTML = '';
+
+    // Preferred ordering
+    const order = ['journal', 'knowledge', 'briefs', 'deliverables', 'assets', 'content'];
+    const sorted = [
+      ...order.filter(n => state.tables.find(t => t.name === n)),
+      ...state.tables.filter(t => !order.includes(t.name)).map(t => t.name)
+    ];
+
+    sorted.forEach(name => {
+      const t = state.tables.find(x => x.name === name);
+      if (!t) return;
+      const icon = TABLE_ICONS[t.name] || '◻';
+      const el = document.createElement('div');
+      el.className = 'table-item';
+      el.dataset.table = t.name;
+      el.innerHTML = `
+        <div class="table-item-left">
+          <div class="table-icon">${icon}</div>
+          <span class="table-name">${esc(t.name)}</span>
+        </div>
+        <span class="table-count">${t.count.toLocaleString()}</span>
+      `;
+      el.addEventListener('click', () => selectTable(t.name));
+      list.appendChild(el);
+    });
+
+    hideLoading();
+  }
+
+  function switchToApp() {
+    document.getElementById('landing').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+  }
+
+  function resetToLanding() {
+    document.getElementById('app').classList.remove('visible');
+    document.getElementById('landing').style.display = '';
+    state.db = null;
+    state.activeTable = null;
+    state.page = 0;
+    document.getElementById('search-input').value = '';
+    state.searchQuery = '';
+  }
+
+  // ─── TABLE SELECTION ───────────────────────────────────────────────────────
+
+  function selectTable(name) {
+    state.activeTable = name;
+    state.page = 0;
+    state.searchQuery = '';
+    document.getElementById('search-input').value = '';
+
+    document.querySelectorAll('.table-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.table === name);
+    });
+
+    const t = state.tables.find(x => x.name === name);
+    document.getElementById('topbar-title').textContent =
+      name.charAt(0).toUpperCase() + name.slice(1);
+    document.getElementById('topbar-count').textContent =
+      t ? `${t.count.toLocaleString()} records` : '';
+
+    renderTable(name);
+  }
+
+  function renderTable(name) {
+    clearContent();
+    switch (name) {
+      case 'journal':      renderJournal(); break;
+      case 'knowledge':    renderKnowledge(); break;
+      case 'briefs':       renderBriefs(); break;
+      case 'assets':       renderAssets(); break;   // BRIEF-005
+      default:             renderGenericTable(name); break;
+    }
+  }
+
+  function clearContent() {
+    document.getElementById('content-area').innerHTML = '';
+  }
+
+  // ─── JOURNAL ───────────────────────────────────────────────────────────────
+
+  function renderJournal(searchQuery) {
+    const area = document.getElementById('content-area');
+    const offset = state.page * state.pageSize;
+    let rows, total;
+
+    if (searchQuery) {
+      const q = `%${searchQuery}%`;
+      total = queryScalar(
+        `SELECT COUNT(*) FROM journal WHERE body LIKE ? OR title LIKE ?`, [q, q]
+      );
+      rows = queryToRows(
+        `SELECT * FROM journal WHERE body LIKE ? OR title LIKE ?
+         ORDER BY date DESC LIMIT ? OFFSET ?`,
+        [q, q, state.pageSize, offset]
+      );
+    } else {
+      total = queryScalar(`SELECT COUNT(*) FROM journal`);
+      rows = queryToRows(
+        `SELECT * FROM journal ORDER BY date DESC LIMIT ? OFFSET ?`,
+        [state.pageSize, offset]
+      );
+    }
+
+    if (!rows.length) {
+      area.innerHTML = emptyStateHTML('No entries found', searchQuery
+        ? 'No journal entries match your search.' : 'No journal entries yet.');
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'cards-grid journal-grid';
+
+    rows.forEach(row => {
+      const card = document.createElement('div');
+      card.className = 'journal-card';
+
+      const metaParts = [];
+      if (row.date) metaParts.push(`<span class="journal-date">${esc(fmtDate(row.date))}</span>`);
+      if (row.mood) metaParts.push(`<span class="journal-mood">${esc(row.mood)}</span>`);
+      if (row.project) metaParts.push(`<span class="journal-project">${esc(row.project)}</span>`);
+
+      const bodyText = row.body || '';
+      const shouldTruncate = bodyText.length > 600 && !searchQuery;
+      const bodyId = `jbody-${row.id}`;
+
+      card.innerHTML = `
+        ${metaParts.length ? `<div class="journal-card-meta">${metaParts.join('')}</div>` : ''}
+        ${row.title ? `<div class="journal-card-title">${searchQuery
+          ? highlight(row.title, searchQuery) : esc(row.title)}</div>` : ''}
+        <div class="journal-card-body ${shouldTruncate ? 'truncated' : ''}" id="${bodyId}">${
+          searchQuery ? highlight(bodyText, searchQuery) : esc(bodyText)
+        }</div>
+        ${shouldTruncate ? `<button class="expand-btn" data-target="${bodyId}">Show more</button>` : ''}
+        ${renderTags(row.tags)}
+      `;
+      grid.appendChild(card);
+    });
+
+    area.appendChild(grid);
+    renderPagination(area, total, searchQuery
+      ? () => renderJournal(searchQuery) : () => renderJournal());
+
+    // expand buttons
+    area.querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.dataset.target);
+        target.classList.remove('truncated');
+        btn.remove();
+      });
+    });
+  }
+
+  // ─── KNOWLEDGE ─────────────────────────────────────────────────────────────
+
+  function renderKnowledge(searchQuery) {
+    const area = document.getElementById('content-area');
+    const offset = state.page * state.pageSize;
+    let rows, total;
+
+    if (searchQuery) {
+      const q = `%${searchQuery}%`;
+      total = queryScalar(
+        `SELECT COUNT(*) FROM knowledge WHERE body LIKE ? OR title LIKE ?`, [q, q]
+      );
+      rows = queryToRows(
+        `SELECT * FROM knowledge WHERE body LIKE ? OR title LIKE ?
+         ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+        [q, q, state.pageSize, offset]
+      );
+    } else {
+      total = queryScalar(`SELECT COUNT(*) FROM knowledge`);
+      rows = queryToRows(
+        `SELECT * FROM knowledge ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+        [state.pageSize, offset]
+      );
+    }
+
+    if (!rows.length) {
+      area.innerHTML = emptyStateHTML('No items found', searchQuery
+        ? 'No knowledge items match your search.' : 'Knowledge base is empty.');
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'cards-grid knowledge-grid';
+
+    rows.forEach(row => {
+      const card = document.createElement('div');
+      card.className = 'knowledge-card';
+
+      const bodyText = row.body || '';
+      const shouldTruncate = bodyText.length > 400 && !searchQuery;
+      const bodyId = `kbody-${row.id}`;
+
+      card.innerHTML = `
+        ${row.title ? `<div class="knowledge-card-title">${searchQuery
+          ? highlight(row.title, searchQuery) : esc(row.title)}</div>` : ''}
+        <div class="knowledge-card-body ${shouldTruncate ? 'truncated' : ''}" id="${bodyId}">${
+          searchQuery ? highlight(bodyText, searchQuery) : esc(bodyText)
+        }</div>
+        ${shouldTruncate ? `<button class="expand-btn" data-target="${bodyId}">Show more</button>` : ''}
+        ${row.source ? `<div class="knowledge-source">
+          <svg width="11" height="11" viewBox="0 0 15 15" fill="none">
+            <path d="M4 7.5h7M8.5 5l2.5 2.5-2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>${esc(row.source)}</span>
+        </div>` : ''}
+        ${renderTags(row.tags)}
+      `;
+      grid.appendChild(card);
+    });
+
+    area.appendChild(grid);
+    renderPagination(area, total, searchQuery
+      ? () => renderKnowledge(searchQuery) : () => renderKnowledge());
+
+    area.querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.dataset.target);
+        target.classList.remove('truncated');
+        btn.remove();
+      });
+    });
+  }
+
+  // ─── BRIEFS ────────────────────────────────────────────────────────────────
+
+  function renderBriefs() {
+    const area = document.getElementById('content-area');
+    const offset = state.page * state.pageSize;
+    const total = queryScalar(`SELECT COUNT(*) FROM briefs`);
+    const rows = queryToRows(
+      `SELECT * FROM briefs ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+      [state.pageSize, offset]
+    );
+
+    if (!rows.length) {
+      area.innerHTML = emptyStateHTML('No briefs', 'No briefs have been logged yet.');
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'cards-grid briefs-grid';
+
+    rows.forEach(row => {
+      const card = document.createElement('div');
+      card.className = 'brief-card';
+
+      const statusClass = (row.status || 'open').toLowerCase();
+      const bodyText = row.body || '';
+      const shouldTruncate = bodyText.length > 500;
+      const bodyId = `bbody-${row.id}`;
+
+      card.innerHTML = `
+        <div class="brief-card-header">
+          ${row.brief_ref ? `<span class="brief-ref">${esc(row.brief_ref)}</span>` : ''}
+          <div class="brief-title">${esc(row.title || 'Untitled')}</div>
+          <span class="status-badge ${statusClass}">
+            <span class="status-dot"></span>
+            ${esc(row.status || 'open')}
+          </span>
+        </div>
+        <div class="brief-meta">
+          ${row.assigned_to ? `<span class="brief-meta-item">Assigned to <strong>${esc(row.assigned_to)}</strong></span>` : ''}
+          ${row.created_by ? `<span class="brief-meta-item">From <strong>${esc(row.created_by)}</strong></span>` : ''}
+          ${row.created_at ? `<span class="brief-meta-item">${esc(fmtDateShort(row.created_at))}</span>` : ''}
+          ${row.completed_at ? `<span class="brief-meta-item">Completed ${esc(fmtDateShort(row.completed_at))}</span>` : ''}
+        </div>
+        ${bodyText ? `<div class="brief-body ${shouldTruncate ? 'truncated' : ''}" id="${bodyId}">${esc(bodyText)}</div>
+        ${shouldTruncate ? `<button class="expand-btn" data-target="${bodyId}">Show more</button>` : ''}` : ''}
+      `;
+      grid.appendChild(card);
+    });
+
+    area.appendChild(grid);
+    renderPagination(area, total, () => renderBriefs());
+
+    area.querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.dataset.target);
+        target.classList.remove('truncated');
+        btn.remove();
+      });
+    });
+  }
+
+  // ─── GENERIC TABLE ─────────────────────────────────────────────────────────
+
+  function renderGenericTable(name) {
+    const area = document.getElementById('content-area');
+    const offset = state.page * state.pageSize;
+    const total = queryScalar(`SELECT COUNT(*) FROM "${name}"`);
+    const rows = queryToRows(
+      `SELECT * FROM "${name}" LIMIT ? OFFSET ?`,
+      [state.pageSize, offset]
+    );
+
+    if (!rows.length) {
+      area.innerHTML = emptyStateHTML('Empty table', `No records in ${name}.`);
+      return;
+    }
+
+    const columns = Object.keys(rows[0]);
+    const wrap = document.createElement('div');
+    wrap.className = 'data-table-wrap';
+
+    const table = document.createElement('table');
+    table.className = 'data-table';
+
+    const thead = document.createElement('thead');
+    thead.innerHTML = `<tr>${columns.map(c =>
+      `<th>${esc(c)}</th>`).join('')}</tr>`;
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    rows.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = columns.map(c => {
+        const val = row[c];
+        if (val === null || val === undefined)
+          return `<td><span class="cell-null">null</span></td>`;
+        if (typeof val === 'number')
+          return `<td><span class="cell-number">${val.toLocaleString()}</span></td>`;
+        return `<td>${esc(String(val))}</td>`;
+      }).join('');
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    area.appendChild(wrap);
+
+    renderPagination(area, total, () => renderGenericTable(name));
+  }
+
+  // ─── ASSETS (BRIEF-005) ────────────────────────────────────────────────────
+
+  function renderAssets() {
+    const area = document.getElementById('content-area');
+    const offset = state.page * state.pageSize;
+    const total = queryScalar(`SELECT COUNT(*) FROM assets`);
+    const rows = queryToRows(
+      `SELECT * FROM assets ORDER BY id DESC LIMIT ? OFFSET ?`,
+      [state.pageSize, offset]
+    );
+
+    if (!rows.length) {
+      area.innerHTML = emptyStateHTML('No assets', 'No assets have been logged yet.');
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'assets-grid';
+
+    rows.forEach(row => {
+      const card = document.createElement('div');
+      card.className = 'asset-card';
+
+      // Determine status badge class
+      const status = (row.status || 'pending').toLowerCase();
+      const statusClass = `badge-status-${status}`;
+
+      // File type from extension or type column
+      const typeLabel = row.file_type || row.type || (row.path
+        ? (row.path.split('.').pop() || '').toLowerCase() : '');
+
+      // Date added
+      const dateAdded = row.added_at || row.created_at || row.date_added || null;
+
+      // Filename — prefer filename column, else derive from path
+      const filename = row.filename || row.name || (row.path
+        ? row.path.split('/').pop() : 'Unknown file');
+
+      // Build the card
+      const metaItems = [];
+      if (dateAdded) metaItems.push(`<span class="asset-meta-item">Added <strong>${esc(fmtDateShort(dateAdded))}</strong></span>`);
+      if (row.path)  metaItems.push(`<span class="asset-meta-item" title="${esc(row.path)}">${esc(row.path)}</span>`);
+
+      // Open button — disabled if no dirHandle
+      const canOpen = !!state.dirHandle && !!row.path;
+      const openDisabledAttr = canOpen ? '' : 'disabled';
+      const openTitle = canOpen ? `Open ${esc(filename)}`
+        : 'title="Grant folder access on load to enable previews"';
+
+      card.innerHTML = `
+        <div class="asset-card-header">
+          <div class="asset-filename">${esc(filename)}</div>
+          <div class="asset-badges">
+            ${typeLabel ? `<span class="badge badge-type">${esc(typeLabel)}</span>` : ''}
+            <span class="badge ${statusClass}">${esc(status)}</span>
+          </div>
+        </div>
+        ${metaItems.length ? `<div class="asset-meta-row">${metaItems.join('')}</div>` : ''}
+        ${row.notes ? `<div class="asset-notes">${esc(row.notes)}</div>` : ''}
+        <button class="btn-open-file" ${openDisabledAttr}
+          ${!canOpen ? 'title="Grant folder access on load to enable previews"' : ''}
+          data-path="${esc(row.path || '')}"
+          data-filename="${esc(filename)}">
+          <svg width="12" height="12" viewBox="0 0 15 15" fill="none">
+            <path d="M2 3.5A1.5 1.5 0 013.5 2h3.293a1.5 1.5 0 011.06.44l.708.707A1.5 1.5 0 009.62 3.5H12A1.5 1.5 0 0113.5 5v6A1.5 1.5 0 0112 12.5H3A1.5 1.5 0 011.5 11V5A1.5 1.5 0 013 3.5z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+          </svg>
+          Open
+        </button>
+        <div class="asset-content-section" id="asset-content-${row.id}">
+          <div class="asset-content-label">Research &amp; Extracted Content</div>
+          <div class="asset-content-rows"></div>
+        </div>
+      `;
+
+      // Query content rows for this asset
+      const contentRows = queryToRows(
+        `SELECT id, content_type, body, extracted_at FROM content WHERE asset_id = ?`,
+        [row.id]
+      );
+      const contentContainer = card.querySelector('.asset-content-rows');
+
+      if (!contentRows.length) {
+        contentContainer.innerHTML = `<p class="no-content-msg">No research linked yet.</p>`;
+      } else {
+        contentRows.forEach(cr => {
+          const crow = document.createElement('div');
+          crow.className = 'content-row';
+          crow.innerHTML = `
+            ${cr.content_type ? `<span class="content-type-badge">${esc(cr.content_type)}</span>` : ''}
+            <div class="content-body">${renderContentBody(cr.body || '')}</div>
+            ${cr.extracted_at ? `<div class="content-extracted">Extracted ${esc(fmtDateShort(cr.extracted_at))}</div>` : ''}
+          `;
+          contentContainer.appendChild(crow);
+        });
+      }
+
+      grid.appendChild(card);
+    });
+
+    area.appendChild(grid);
+    renderPagination(area, total, () => renderAssets());
+
+    // Wire up Open buttons
+    area.querySelectorAll('.btn-open-file:not([disabled])').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openAssetFile(btn.dataset.path, btn.dataset.filename);
+      });
+    });
+  }
+
+  // Render content body — honour ## headings, preserve line breaks
+  function renderContentBody(raw) {
+    const lines = raw.split('\n');
+    return lines.map(line => {
+      const h2 = line.match(/^##\s+(.*)/);
+      if (h2) return `<h2>${esc(h2[1])}</h2>`;
+      return esc(line);
+    }).join('\n');
+  }
+
+  // Open a file via directory handle and display according to type
+  async function openAssetFile(relPath, filename) {
+    if (!relPath) return;
+    const ext = relPath.split('.').pop().toLowerCase();
+
+    const fileHandle = await resolveFileHandle(relPath);
+    if (!fileHandle) {
+      showError('Could not locate file. Check that you granted access to the correct PKA root folder.');
+      return;
+    }
+
+    const file = await fileHandle.getFile();
+
+    if (ext === 'pdf') {
+      // Slide-in panel
+      const blobUrl = URL.createObjectURL(file);
+      document.getElementById('pdf-panel-title').textContent = filename;
+      document.getElementById('pdf-panel-frame').src = blobUrl;
+      document.getElementById('pdf-panel').classList.add('open');
+      document.getElementById('pdf-backdrop').classList.add('visible');
+      // Store blob URL to revoke on close
+      document.getElementById('pdf-panel').dataset.blobUrl = blobUrl;
+    } else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) {
+      // Lightbox
+      const blobUrl = URL.createObjectURL(file);
+      const img = document.getElementById('lightbox-img');
+      img.src = blobUrl;
+      img.dataset.blobUrl = blobUrl;
+      document.getElementById('lightbox').classList.add('visible');
+    } else if (['txt', 'md', 'markdown', 'csv', 'json'].includes(ext)) {
+      // Text / markdown pre-block modal
+      const text = await file.text();
+      document.getElementById('preview-modal-title').textContent = filename;
+      document.getElementById('preview-modal-body').innerHTML =
+        `<pre class="preview-pre">${esc(text)}</pre>`;
+      document.getElementById('preview-modal').classList.add('visible');
+    } else {
+      // Unsupported — show path + note
+      document.getElementById('preview-modal-title').textContent = filename;
+      document.getElementById('preview-modal-body').innerHTML = `
+        <div class="preview-unsupported">
+          <p>This file type cannot be previewed directly in the browser.</p>
+          <p style="margin-top:8px;">Open this file in your system file manager.</p>
+          <div class="preview-path">${esc(relPath)}</div>
+        </div>`;
+      document.getElementById('preview-modal').classList.add('visible');
+    }
+  }
+
+  // ─── SEARCH ────────────────────────────────────────────────────────────────
+
+  function handleSearch(query) {
+    const q = query.trim();
+    state.searchQuery = q;
+    state.page = 0;
+    clearContent();
+
+    if (!q) {
+      if (state.activeTable) renderTable(state.activeTable);
+      return;
+    }
+
+    // If on a specific table that supports search, search just that
+    if (state.activeTable === 'journal') {
+      document.getElementById('topbar-title').textContent = 'Journal';
+      renderJournal(q);
+      return;
+    }
+    if (state.activeTable === 'knowledge') {
+      document.getElementById('topbar-title').textContent = 'Knowledge';
+      renderKnowledge(q);
+      return;
+    }
+
+    // Cross-table search across journal + knowledge
+    document.getElementById('topbar-title').textContent = 'Search results';
+    document.getElementById('topbar-count').textContent = `"${q}"`;
+    renderSearchResults(q);
+  }
+
+  function renderSearchResults(q) {
+    const area = document.getElementById('content-area');
+    const likeQ = `%${q}%`;
+
+    const journalRows = queryToRows(
+      `SELECT * FROM journal WHERE body LIKE ? OR title LIKE ?
+       ORDER BY date DESC LIMIT 20`,
+      [likeQ, likeQ]
+    );
+    const knowledgeRows = queryToRows(
+      `SELECT * FROM knowledge WHERE body LIKE ? OR title LIKE ?
+       ORDER BY created_at DESC LIMIT 20`,
+      [likeQ, likeQ]
+    );
+
+    if (!journalRows.length && !knowledgeRows.length) {
+      area.innerHTML = emptyStateHTML('No results', `Nothing found for "${esc(q)}".`);
+      return;
+    }
+
+    if (journalRows.length) {
+      const label = document.createElement('div');
+      label.className = 'search-section-label';
+      label.textContent = `Journal — ${journalRows.length} result${journalRows.length !== 1 ? 's' : ''}`;
+      area.appendChild(label);
+
+      const grid = document.createElement('div');
+      grid.className = 'cards-grid journal-grid';
+      journalRows.forEach(row => {
+        const card = document.createElement('div');
+        card.className = 'journal-card';
+        const metaParts = [];
+        if (row.date) metaParts.push(`<span class="journal-date">${esc(fmtDate(row.date))}</span>`);
+        if (row.mood) metaParts.push(`<span class="journal-mood">${esc(row.mood)}</span>`);
+        if (row.project) metaParts.push(`<span class="journal-project">${esc(row.project)}</span>`);
+        card.innerHTML = `
+          ${metaParts.length ? `<div class="journal-card-meta">${metaParts.join('')}</div>` : ''}
+          ${row.title ? `<div class="journal-card-title">${highlight(row.title, q)}</div>` : ''}
+          <div class="journal-card-body">${highlight(row.body || '', q)}</div>
+          ${renderTags(row.tags)}
+        `;
+        grid.appendChild(card);
+      });
+      area.appendChild(grid);
+    }
+
+    if (knowledgeRows.length) {
+      const label = document.createElement('div');
+      label.className = 'search-section-label';
+      label.textContent = `Knowledge — ${knowledgeRows.length} result${knowledgeRows.length !== 1 ? 's' : ''}`;
+      area.appendChild(label);
+
+      const grid = document.createElement('div');
+      grid.className = 'cards-grid knowledge-grid';
+      knowledgeRows.forEach(row => {
+        const card = document.createElement('div');
+        card.className = 'knowledge-card';
+        card.innerHTML = `
+          ${row.title ? `<div class="knowledge-card-title">${highlight(row.title, q)}</div>` : ''}
+          <div class="knowledge-card-body">${highlight(row.body || '', q)}</div>
+          ${row.source ? `<div class="knowledge-source">
+            <svg width="11" height="11" viewBox="0 0 15 15" fill="none">
+              <path d="M4 7.5h7M8.5 5l2.5 2.5-2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>${esc(row.source)}</span>
+          </div>` : ''}
+          ${renderTags(row.tags)}
+        `;
+        grid.appendChild(card);
+      });
+      area.appendChild(grid);
+    }
+  }
+
+  // ─── PAGINATION ────────────────────────────────────────────────────────────
+
+  function renderPagination(area, total, onNavigate) {
+    const totalPages = Math.ceil(total / state.pageSize);
+    if (totalPages <= 1) return;
+
+    const pag = document.createElement('div');
+    pag.className = 'pagination';
+
+    const prev = document.createElement('button');
+    prev.className = 'page-btn';
+    prev.textContent = '← Previous';
+    prev.disabled = state.page === 0;
+    prev.addEventListener('click', () => {
+      state.page--;
+      clearContent();
+      onNavigate();
+      document.getElementById('content-area').scrollTop = 0;
+    });
+
+    const info = document.createElement('span');
+    info.className = 'page-info';
+    info.textContent = `Page ${state.page + 1} of ${totalPages}`;
+
+    const next = document.createElement('button');
+    next.className = 'page-btn';
+    next.textContent = 'Next →';
+    next.disabled = state.page >= totalPages - 1;
+    next.addEventListener('click', () => {
+      state.page++;
+      clearContent();
+      onNavigate();
+      document.getElementById('content-area').scrollTop = 0;
+    });
+
+    pag.append(prev, info, next);
+    area.appendChild(pag);
+  }
+
+  // ─── EMPTY STATE ───────────────────────────────────────────────────────────
+
+  function emptyStateHTML(heading, body) {
+    return `<div class="empty-state">
+      <div class="empty-icon">◻</div>
+      <h3>${esc(heading)}</h3>
+      <p>${esc(body)}</p>
+    </div>`;
+  }
+
+  // ─── FILE OPEN ─────────────────────────────────────────────────────────────
+
+  async function openFile() {
+    try {
+      if ('showOpenFilePicker' in window) {
+        const [fileHandle] = await window.showOpenFilePicker({
+          types: [{ description: 'SQLite Database', accept: { 'application/octet-stream': ['.db'] } }],
+          multiple: false,
+        });
+        const file = await fileHandle.getFile();
+        document.getElementById('db-filename').textContent = file.name;
+        const buf = await file.arrayBuffer();
+        await openDatabase(buf);
+      } else {
+        // Trigger fallback
+        document.getElementById('fallback-input').click();
+      }
+    } catch (e) {
+      if (e.name !== 'AbortError') {
+        showError('Could not open file: ' + e.message);
+      }
+    }
+  }
+
+  // ─── EVENT LISTENERS ───────────────────────────────────────────────────────
+
+  document.getElementById('open-btn').addEventListener('click', openFile);
+  document.getElementById('reload-btn').addEventListener('click', resetToLanding);
+
+  document.getElementById('fallback-input').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    document.getElementById('db-filename').textContent = file.name;
+    const buf = await file.arrayBuffer();
+    await openDatabase(buf);
+    e.target.value = '';
+  });
+
+  document.getElementById('search-input').addEventListener('input', (e) => {
+    clearTimeout(state.searchTimeout);
+    state.searchTimeout = setTimeout(() => handleSearch(e.target.value), 280);
+  });
+
+  document.getElementById('search-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.target.value = '';
+      handleSearch('');
+    }
+  });
+
+  // ─── MODAL CLOSE HANDLERS (BRIEF-005) ─────────────────────────────────────
+
+  function closePdfPanel() {
+    const panel = document.getElementById('pdf-panel');
+    panel.classList.remove('open');
+    document.getElementById('pdf-backdrop').classList.remove('visible');
+    const frame = document.getElementById('pdf-panel-frame');
+    const blobUrl = panel.dataset.blobUrl;
+    frame.src = '';
+    if (blobUrl) { URL.revokeObjectURL(blobUrl); delete panel.dataset.blobUrl; }
+  }
+
+  document.getElementById('pdf-panel-close').addEventListener('click', closePdfPanel);
+  document.getElementById('pdf-backdrop').addEventListener('click', closePdfPanel);
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('visible');
+    const img = document.getElementById('lightbox-img');
+    if (img.dataset.blobUrl) { URL.revokeObjectURL(img.dataset.blobUrl); delete img.dataset.blobUrl; }
+    img.src = '';
+  }
+
+  document.getElementById('lightbox').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('lightbox')) closeLightbox();
+  });
+
+  function closePreviewModal() {
+    document.getElementById('preview-modal').classList.remove('visible');
+    document.getElementById('preview-modal-body').innerHTML = '';
+  }
+
+  document.getElementById('preview-modal-close').addEventListener('click', closePreviewModal);
+  document.getElementById('preview-modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('preview-modal')) closePreviewModal();
+  });
+
+  // Close modals on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (document.getElementById('pdf-panel').classList.contains('open')) { closePdfPanel(); return; }
+    if (document.getElementById('lightbox').classList.contains('visible')) { closeLightbox(); return; }
+    if (document.getElementById('preview-modal').classList.contains('visible')) { closePreviewModal(); return; }
+  });
+
+  // ─── BROWSER COMPAT ────────────────────────────────────────────────────────
+
+  // Show fallback file picker for Firefox (no showOpenFilePicker)
+  if (!('showOpenFilePicker' in window)) {
+    document.getElementById('fallback-label').style.display = 'inline-flex';
+  }
+</script>
+</body>
+</html>

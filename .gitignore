@@ -1,0 +1,23 @@
+# PKA Template — Git Ignore Rules
+
+# Generated database (created by setup.py — not committed)
+pka.db
+
+# Team Inbox raw assets
+team_inbox/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
