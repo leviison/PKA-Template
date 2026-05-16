@@ -1247,6 +1247,326 @@
       margin-top: 10px;
       word-break: break-all;
     }
+
+    /* ─── BACKLOG CARDS ───────────────────────────────────────────── */
+
+    .cards-grid.backlog-grid {
+      grid-template-columns: 1fr;
+      max-width: 760px;
+    }
+
+    .status-badge.idea {
+      color: var(--status-open);
+      background: var(--status-open-bg);
+    }
+
+    .status-badge.deferred {
+      color: #6b7280;
+      background: rgba(107, 114, 128, 0.12);
+    }
+
+    .priority-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      flex-shrink: 0;
+    }
+
+    .priority-badge.p1 { color: #f87171; background: rgba(248, 113, 113, 0.12); }
+    .priority-badge.p2 { color: #f59e0b; background: rgba(245, 158, 11, 0.12); }
+    .priority-badge.p3 { color: #6b7280; background: rgba(107, 114, 128, 0.12); }
+
+    /* ─── PERSONAL SIDEBAR SECTION ────────────────────────────────── */
+
+    .sidebar-section-divider {
+      border-top: 1px solid var(--border-soft);
+      margin: 8px 10px 4px;
+    }
+
+    .btn-load-personal {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      font-family: var(--font);
+      cursor: pointer;
+      width: 100%;
+      justify-content: center;
+      transition: border-color 0.15s, color 0.15s;
+      margin-top: 8px;
+    }
+
+    .btn-load-personal:hover { border-color: var(--accent); color: var(--text-secondary); }
+
+    .personal-db-note {
+      font-size: 10.5px;
+      color: var(--text-tertiary);
+      text-align: center;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    /* ─── TASKS CARD ──────────────────────────────────────────────── */
+
+    .task-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      transition: border-color 0.15s;
+    }
+
+    .task-card:hover { border-color: var(--border); }
+
+    .task-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .task-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .task-due {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 10px;
+    }
+
+    /* ─── WRITE CAPABILITY (BRIEF-015) ───────────────────────────────────────── */
+
+    /* Card action bar — Edit / Delete buttons */
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .btn-card-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-family: var(--font);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .btn-card-action:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    .btn-card-action.danger:hover {
+      border-color: #f87171;
+      color: #f87171;
+    }
+
+    /* New Entry button at top of table view */
+    .new-entry-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .btn-new-entry {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(124, 140, 248, 0.3);
+      border-radius: var(--radius-sm);
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn-new-entry:hover {
+      background: rgba(124, 140, 248, 0.2);
+      border-color: rgba(124, 140, 248, 0.5);
+    }
+
+    /* Inline edit/new form */
+    .inline-form {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .inline-form.new-entry-form {
+      margin-bottom: 18px;
+      margin-top: 0;
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-row label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    .form-row input,
+    .form-row textarea,
+    .form-row select {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 11px;
+      font-size: 13.5px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s;
+      resize: vertical;
+    }
+
+    .form-row input:focus,
+    .form-row textarea:focus,
+    .form-row select:focus {
+      border-color: var(--accent);
+    }
+
+    .form-row textarea {
+      min-height: 90px;
+      line-height: 1.6;
+    }
+
+    .form-row select option {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .btn-form-save {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 7px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-form-save:hover { opacity: 0.85; }
+
+    .btn-form-cancel {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 14px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-family: var(--font);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .btn-form-cancel:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    /* Sticky save bar */
+    #save-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: var(--sidebar-w);
+      right: 0;
+      background: #1a1a20;
+      border-top: 1px solid var(--border);
+      padding: 12px 28px;
+      z-index: 150;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    #save-bar.visible { display: flex; }
+
+    #save-bar-msg {
+      font-size: 13px;
+      color: var(--text-secondary);
+      flex: 1;
+    }
+
+    #save-bar-msg strong { color: var(--text-primary); }
+
+    .btn-save-db {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-save-db:hover { opacity: 0.85; }
+
+    /* Pad content area when save bar is visible */
+    #content-area.save-bar-active {
+      padding-bottom: 72px;
+    }
   </style>
 </head>
 <body>
@@ -1315,6 +1635,27 @@
   </div>
 </div>
 
+<!-- SAVE BAR (BRIEF-015) -->
+<div id="save-bar">
+  <span id="save-bar-msg"></span>
+  <button class="btn-save-db" id="btn-save-pka">
+    <svg width="12" height="12" viewBox="0 0 15 15" fill="none">
+      <path d="M3 2.5h7l2.5 2.5V12a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3A.5.5 0 013 2.5z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      <rect x="5" y="8.5" width="5" height="4" rx=".3" stroke="currentColor" stroke-width="1.1" fill="none"/>
+      <rect x="5" y="2.5" width="4" height="3" rx=".3" stroke="currentColor" stroke-width="1.1" fill="none"/>
+    </svg>
+    Save pka.db
+  </button>
+  <button class="btn-save-db" id="btn-save-personal" style="display:none;">
+    <svg width="12" height="12" viewBox="0 0 15 15" fill="none">
+      <path d="M3 2.5h7l2.5 2.5V12a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3A.5.5 0 013 2.5z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      <rect x="5" y="8.5" width="5" height="4" rx=".3" stroke="currentColor" stroke-width="1.1" fill="none"/>
+      <rect x="5" y="2.5" width="4" height="3" rx=".3" stroke="currentColor" stroke-width="1.1" fill="none"/>
+    </svg>
+    Save personal.db
+  </button>
+</div>
+
 <!-- APP SHELL -->
 <div id="app">
 
@@ -1337,6 +1678,14 @@
         </svg>
         Open different file
       </button>
+      <button class="btn-load-personal" id="load-personal-btn" style="display:none;">
+        <svg width="12" height="12" viewBox="0 0 15 15" fill="none">
+          <path d="M7.5 1v9M4 6l3.5 4L11 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1.5 11.5v1a1 1 0 001 1h10a1 1 0 001-1v-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        Load personal.db
+      </button>
+      <p class="personal-db-note" id="personal-db-note" style="display:none;">Personal data stays local.<br>Nothing is uploaded.</p>
     </div>
   </nav>
 
@@ -1355,7 +1704,7 @@
         <input
           type="text"
           id="search-input"
-          placeholder="Search journal & knowledge…"
+          placeholder="Search journal, knowledge & backlog…"
           autocomplete="off"
           spellcheck="false"
         />
@@ -1402,6 +1751,13 @@
     pageSize: 40,
     searchTimeout: null,
     dirHandle: null,       // BRIEF-005: FileSystemDirectoryHandle for PKA root
+    personalDb: null,      // BRIEF-008: optional personal.db
+    personalTables: [],    // BRIEF-008: tables from personal.db
+    // BRIEF-015: write capability state
+    pkaFileHandle: null,
+    personalFileHandle: null,
+    pkaUnsaved: false,
+    personalUnsaved: false,
   };
 
   // ─── UTILS ─────────────────────────────────────────────────────────────────
@@ -1497,6 +1853,24 @@
     return result[0].values[0][0];
   }
 
+  // Versions that accept an explicit db (for personal.db queries) — BRIEF-008
+  function queryToRowsFrom(db, sql, params = []) {
+    const result = db.exec(sql, params);
+    if (!result.length) return [];
+    const { columns, values } = result[0];
+    return values.map(row => {
+      const obj = {};
+      columns.forEach((col, i) => obj[col] = row[i]);
+      return obj;
+    });
+  }
+
+  function queryScalarFrom(db, sql, params = []) {
+    const result = db.exec(sql, params);
+    if (!result.length || !result[0].values.length) return null;
+    return result[0].values[0][0];
+  }
+
   // ─── DB INIT ───────────────────────────────────────────────────────────────
 
   async function loadSqlJs() {
@@ -1563,15 +1937,113 @@
     }
   }
 
+  // ─── PERSONAL DB (BRIEF-008) ───────────────────────────────────────────────
+
+  async function openPersonalDb() {
+    try {
+      let buf;
+      if ('showOpenFilePicker' in window) {
+        const [fh] = await window.showOpenFilePicker({
+          types: [{ description: 'SQLite Database', accept: { 'application/octet-stream': ['.db'] } }],
+          multiple: false,
+        });
+        state.personalFileHandle = fh;  // BRIEF-015: store for write-back
+        const file = await fh.getFile();
+        buf = await file.arrayBuffer();
+      } else {
+        // Fallback: trigger hidden input
+        buf = await new Promise((resolve, reject) => {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.db,application/octet-stream';
+          input.onchange = async (e) => {
+            const f = e.target.files[0];
+            if (!f) return reject(new Error('No file selected'));
+            resolve(await f.arrayBuffer());
+          };
+          input.click();
+        });
+      }
+
+      if (!window._SQL) {
+        showLoading('Initialising sql.js…');
+        window._SQL = await loadSqlJs();
+        hideLoading();
+      }
+      const SQL = window._SQL;
+      if (state.personalDb) { state.personalDb.close(); state.personalDb = null; }
+      state.personalDb = new SQL.Database(new Uint8Array(buf));
+      populatePersonalSidebar();
+      document.getElementById('load-personal-btn').textContent = '✓ personal.db loaded';
+      document.getElementById('load-personal-btn').disabled = true;
+      document.getElementById('personal-db-note').style.display = 'block';
+    } catch (e) {
+      if (e.name !== 'AbortError') showError('Could not open personal.db: ' + e.message);
+    }
+  }
+
+  function populatePersonalSidebar() {
+    const db = state.personalDb;
+    const personalTableNames = ['owner_journal', 'owner_tasks', 'owner_notes'];
+
+    state.personalTables = personalTableNames
+      .filter(name => {
+        try { db.exec(`SELECT 1 FROM ${name} LIMIT 1`); return true; } catch { return false; }
+      })
+      .map(name => {
+        const count = queryScalarFrom(db, `SELECT COUNT(*) FROM "${name}"`);
+        return { name, count };
+      });
+
+    // Remove existing personal section if any
+    const existing = document.getElementById('personal-sidebar-section');
+    if (existing) existing.remove();
+
+    const list = document.getElementById('table-list');
+    const section = document.createElement('div');
+    section.id = 'personal-sidebar-section';
+
+    const divider = document.createElement('div');
+    divider.className = 'sidebar-section-divider';
+    section.appendChild(divider);
+
+    const label = document.createElement('div');
+    label.className = 'sidebar-section-label';
+    label.textContent = 'Personal';
+    section.appendChild(label);
+
+    state.personalTables.forEach(t => {
+      const icon = TABLE_ICONS[t.name] || '◻';
+      const el = document.createElement('div');
+      el.className = 'table-item';
+      el.dataset.table = t.name;
+      el.innerHTML = `
+        <div class="table-item-left">
+          <div class="table-icon">${icon}</div>
+          <span class="table-name">${esc(t.name.replace('owner_', ''))}</span>
+        </div>
+        <span class="table-count">${t.count.toLocaleString()}</span>
+      `;
+      el.addEventListener('click', () => selectTable(t.name));
+      section.appendChild(el);
+    });
+
+    list.appendChild(section);
+  }
+
   // ─── SIDEBAR ───────────────────────────────────────────────────────────────
 
   const TABLE_ICONS = {
     journal:     '📓',
     knowledge:   '💡',
+    backlog:     '🗂',
     briefs:      '📋',
     assets:      '📎',
     content:     '📄',
     deliverables:'📦',
+    owner_journal:'📔',
+    owner_tasks:  '✅',
+    owner_notes:  '🗒',
   };
 
   async function populateSidebar() {
@@ -1590,7 +2062,7 @@
     list.innerHTML = '';
 
     // Preferred ordering
-    const order = ['journal', 'knowledge', 'briefs', 'deliverables', 'assets', 'content'];
+    const order = ['journal', 'knowledge', 'backlog', 'briefs', 'deliverables', 'assets', 'content'];
     const sorted = [
       ...order.filter(n => state.tables.find(t => t.name === n)),
       ...state.tables.filter(t => !order.includes(t.name)).map(t => t.name)
@@ -1615,6 +2087,8 @@
     });
 
     hideLoading();
+    // Show personal.db loader button once pka.db is loaded
+    document.getElementById('load-personal-btn').style.display = 'flex';
   }
 
   function switchToApp() {
@@ -1630,6 +2104,19 @@
     state.page = 0;
     document.getElementById('search-input').value = '';
     state.searchQuery = '';
+    // Reset personal DB state
+    if (state.personalDb) { state.personalDb.close(); state.personalDb = null; }
+    state.personalTables = [];
+    document.getElementById('load-personal-btn').style.display = 'none';
+    document.getElementById('personal-db-note').style.display = 'none';
+    const ps = document.getElementById('personal-sidebar-section');
+    if (ps) ps.remove();
+    // BRIEF-015: reset write state
+    state.pkaFileHandle = null;
+    state.personalFileHandle = null;
+    state.pkaUnsaved = false;
+    state.personalUnsaved = false;
+    updateSaveBar();
   }
 
   // ─── TABLE SELECTION ───────────────────────────────────────────────────────
@@ -1644,9 +2131,10 @@
       el.classList.toggle('active', el.dataset.table === name);
     });
 
-    const t = state.tables.find(x => x.name === name);
+    const t = state.tables.find(x => x.name === name)
+           || state.personalTables.find(x => x.name === name);
     document.getElementById('topbar-title').textContent =
-      name.charAt(0).toUpperCase() + name.slice(1);
+      name.charAt(0).toUpperCase() + name.slice(1).replace(/_/g, ' ');
     document.getElementById('topbar-count').textContent =
       t ? `${t.count.toLocaleString()} records` : '';
 
@@ -1658,8 +2146,12 @@
     switch (name) {
       case 'journal':      renderJournal(); break;
       case 'knowledge':    renderKnowledge(); break;
+      case 'backlog':      renderBacklog(); break;      // BRIEF-008
       case 'briefs':       renderBriefs(); break;
-      case 'assets':       renderAssets(); break;   // BRIEF-005
+      case 'assets':       renderAssets(); break;       // BRIEF-005
+      case 'owner_journal': renderPersonalJournal(); break;  // BRIEF-008
+      case 'owner_tasks':   renderPersonalTasks(); break;    // BRIEF-008
+      case 'owner_notes':   renderPersonalNotes(); break;    // BRIEF-008
       default:             renderGenericTable(name); break;
     }
   }
@@ -1693,9 +2185,28 @@
       );
     }
 
+    if (!rows.length && !searchQuery) {
+      area.innerHTML = emptyStateHTML('No entries found', 'No journal entries yet.');
+      renderNewEntryBar(area, 'journal',
+        [
+          { name: 'date',    label: 'Date (YYYY-MM-DD)', type: 'text', value: new Date().toISOString().slice(0,10) },
+          { name: 'title',   label: 'Title',   type: 'text',     value: '' },
+          { name: 'body',    label: 'Body',    type: 'textarea', value: '' },
+          { name: 'mood',    label: 'Mood',    type: 'text',     value: '' },
+          { name: 'project', label: 'Project', type: 'text',     value: '' },
+          { name: 'tags',    label: 'Tags (comma-separated)', type: 'text', value: '' },
+        ],
+        (v) => ({
+          sql: `INSERT INTO journal (date, title, body, mood, project, tags, created_at)
+                VALUES (?,?,?,?,?,?,datetime('now'))`,
+          params: [v.date, v.title, v.body, v.mood, v.project, v.tags],
+        })
+      );
+      return;
+    }
+
     if (!rows.length) {
-      area.innerHTML = emptyStateHTML('No entries found', searchQuery
-        ? 'No journal entries match your search.' : 'No journal entries yet.');
+      area.innerHTML = emptyStateHTML('No entries found', 'No journal entries match your search.');
       return;
     }
 
@@ -1725,12 +2236,54 @@
         ${shouldTruncate ? `<button class="expand-btn" data-target="${bodyId}">Show more</button>` : ''}
         ${renderTags(row.tags)}
       `;
+
+      // BRIEF-015: attach edit / delete
+      if (!searchQuery) {
+        attachCardActions(card, 'journal',
+          [
+            { name: 'date',    label: 'Date',    type: 'text',     value: row.date    || '' },
+            { name: 'title',   label: 'Title',   type: 'text',     value: row.title   || '' },
+            { name: 'body',    label: 'Body',    type: 'textarea', value: row.body    || '' },
+            { name: 'mood',    label: 'Mood',    type: 'text',     value: row.mood    || '' },
+            { name: 'project', label: 'Project', type: 'text',     value: row.project || '' },
+            { name: 'tags',    label: 'Tags',    type: 'text',     value: row.tags    || '' },
+          ],
+          (v) => ({
+            sql: `UPDATE journal SET date=?, title=?, body=?, mood=?, project=?, tags=? WHERE id=?`,
+            params: [v.date, v.title, v.body, v.mood, v.project, v.tags, row.id],
+          }),
+          () => ({
+            sql: `DELETE FROM journal WHERE id=?`,
+            params: [row.id],
+          })
+        );
+      }
+
       grid.appendChild(card);
     });
 
     area.appendChild(grid);
     renderPagination(area, total, searchQuery
       ? () => renderJournal(searchQuery) : () => renderJournal());
+
+    // BRIEF-015: New Entry bar (only on non-search view)
+    if (!searchQuery) {
+      renderNewEntryBar(area, 'journal',
+        [
+          { name: 'date',    label: 'Date (YYYY-MM-DD)', type: 'text', value: new Date().toISOString().slice(0,10) },
+          { name: 'title',   label: 'Title',   type: 'text',     value: '' },
+          { name: 'body',    label: 'Body',    type: 'textarea', value: '' },
+          { name: 'mood',    label: 'Mood',    type: 'text',     value: '' },
+          { name: 'project', label: 'Project', type: 'text',     value: '' },
+          { name: 'tags',    label: 'Tags (comma-separated)', type: 'text', value: '' },
+        ],
+        (v) => ({
+          sql: `INSERT INTO journal (date, title, body, mood, project, tags, created_at)
+                VALUES (?,?,?,?,?,?,datetime('now'))`,
+          params: [v.date, v.title, v.body, v.mood, v.project, v.tags],
+        })
+      );
+    }
 
     // expand buttons
     area.querySelectorAll('.expand-btn').forEach(btn => {
@@ -1767,9 +2320,26 @@
       );
     }
 
+    if (!rows.length && !searchQuery) {
+      area.innerHTML = emptyStateHTML('No items found', 'Knowledge base is empty.');
+      renderNewEntryBar(area, 'knowledge',
+        [
+          { name: 'title',  label: 'Title',  type: 'text',     value: '' },
+          { name: 'body',   label: 'Body',   type: 'textarea', value: '' },
+          { name: 'source', label: 'Source', type: 'text',     value: '' },
+          { name: 'tags',   label: 'Tags (comma-separated)', type: 'text', value: '' },
+        ],
+        (v) => ({
+          sql: `INSERT INTO knowledge (title, body, source, tags, created_at)
+                VALUES (?,?,?,?,datetime('now'))`,
+          params: [v.title, v.body, v.source, v.tags],
+        })
+      );
+      return;
+    }
+
     if (!rows.length) {
-      area.innerHTML = emptyStateHTML('No items found', searchQuery
-        ? 'No knowledge items match your search.' : 'Knowledge base is empty.');
+      area.innerHTML = emptyStateHTML('No items found', 'No knowledge items match your search.');
       return;
     }
 
@@ -1799,12 +2369,50 @@
         </div>` : ''}
         ${renderTags(row.tags)}
       `;
+
+      // BRIEF-015: attach edit / delete
+      if (!searchQuery) {
+        attachCardActions(card, 'knowledge',
+          [
+            { name: 'title',  label: 'Title',  type: 'text',     value: row.title  || '' },
+            { name: 'body',   label: 'Body',   type: 'textarea', value: row.body   || '' },
+            { name: 'source', label: 'Source', type: 'text',     value: row.source || '' },
+            { name: 'tags',   label: 'Tags',   type: 'text',     value: row.tags   || '' },
+          ],
+          (v) => ({
+            sql: `UPDATE knowledge SET title=?, body=?, source=?, tags=? WHERE id=?`,
+            params: [v.title, v.body, v.source, v.tags, row.id],
+          }),
+          () => ({
+            sql: `DELETE FROM knowledge WHERE id=?`,
+            params: [row.id],
+          })
+        );
+      }
+
       grid.appendChild(card);
     });
 
     area.appendChild(grid);
     renderPagination(area, total, searchQuery
       ? () => renderKnowledge(searchQuery) : () => renderKnowledge());
+
+    // BRIEF-015: New Entry bar
+    if (!searchQuery) {
+      renderNewEntryBar(area, 'knowledge',
+        [
+          { name: 'title',  label: 'Title',  type: 'text',     value: '' },
+          { name: 'body',   label: 'Body',   type: 'textarea', value: '' },
+          { name: 'source', label: 'Source', type: 'text',     value: '' },
+          { name: 'tags',   label: 'Tags (comma-separated)', type: 'text', value: '' },
+        ],
+        (v) => ({
+          sql: `INSERT INTO knowledge (title, body, source, tags, created_at)
+                VALUES (?,?,?,?,datetime('now'))`,
+          params: [v.title, v.body, v.source, v.tags],
+        })
+      );
+    }
 
     area.querySelectorAll('.expand-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1871,6 +2479,445 @@
       btn.addEventListener('click', () => {
         const target = document.getElementById(btn.dataset.target);
         target.classList.remove('truncated');
+        btn.remove();
+      });
+    });
+  }
+
+  // ─── BACKLOG (BRIEF-008) ───────────────────────────────────────────────────
+
+  function renderBacklog() {
+    const area = document.getElementById('content-area');
+    const offset = state.page * state.pageSize;
+    const total = queryScalar(`SELECT COUNT(*) FROM backlog`);
+    const rows = queryToRows(
+      `SELECT * FROM backlog ORDER BY status ASC, priority ASC, created_at DESC LIMIT ? OFFSET ?`,
+      [state.pageSize, offset]
+    );
+
+    const BACKLOG_STATUSES = ['idea', 'active', 'complete', 'deferred'];
+
+    if (!rows.length) {
+      area.innerHTML = emptyStateHTML('Backlog is clear', 'No open items. Add ideas here to surface them at session open.');
+      renderNewEntryBar(area, 'backlog',
+        [
+          { name: 'ref',    label: 'Ref (e.g. BACKLOG-010)', type: 'text', value: '' },
+          { name: 'title',  label: 'Title',    type: 'text',     value: '' },
+          { name: 'body',   label: 'Body',     type: 'textarea', value: '' },
+          { name: 'status', label: 'Status',   type: 'select',   value: 'idea', options: BACKLOG_STATUSES },
+          { name: 'priority', label: 'Priority (1=high, 2=mid, 3=low)', type: 'text', value: '2' },
+          { name: 'source', label: 'Source',   type: 'text',     value: '' },
+          { name: 'tags',   label: 'Tags',     type: 'text',     value: '' },
+        ],
+        (v) => ({
+          sql: `INSERT INTO backlog (ref, title, body, status, priority, source, tags, created_at)
+                VALUES (?,?,?,?,?,?,?,datetime('now'))`,
+          params: [v.ref, v.title, v.body, v.status, parseInt(v.priority)||2, v.source, v.tags],
+        })
+      );
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'cards-grid backlog-grid';
+
+    rows.forEach(row => {
+      const card = document.createElement('div');
+      card.className = 'brief-card';
+
+      const statusVal = (row.status || 'idea').toLowerCase();
+      const priorityNum = row.priority || 2;
+      const priorityLabel = ['', 'P1', 'P2', 'P3'][priorityNum] || 'P2';
+      const priorityClass = ['', 'p1', 'p2', 'p3'][priorityNum] || 'p2';
+
+      const bodyText = row.body || '';
+      const shouldTruncate = bodyText.length > 500;
+      const bodyId = `blbody-${row.id}`;
+
+      card.innerHTML = `
+        <div class="brief-card-header">
+          ${row.ref ? `<span class="brief-ref">${esc(row.ref)}</span>` : ''}
+          <div class="brief-title">${esc(row.title || 'Untitled')}</div>
+          <span class="priority-badge ${priorityClass}">${priorityLabel}</span>
+          <span class="status-badge ${statusVal}">
+            <span class="status-dot"></span>
+            ${esc(row.status || 'idea')}
+          </span>
+        </div>
+        <div class="brief-meta">
+          ${row.source ? `<span class="brief-meta-item">Source <strong>${esc(row.source)}</strong></span>` : ''}
+          ${row.created_at ? `<span class="brief-meta-item">${esc(fmtDateShort(row.created_at))}</span>` : ''}
+        </div>
+        ${bodyText ? `<div class="brief-body ${shouldTruncate ? 'truncated' : ''}" id="${bodyId}">${esc(bodyText)}</div>
+        ${shouldTruncate ? `<button class="expand-btn" data-target="${bodyId}">Show more</button>` : ''}` : ''}
+        ${renderTags(row.tags)}
+      `;
+
+      // BRIEF-015: attach edit / delete
+      attachCardActions(card, 'backlog',
+        [
+          { name: 'ref',      label: 'Ref',      type: 'text',     value: row.ref      || '' },
+          { name: 'title',    label: 'Title',    type: 'text',     value: row.title    || '' },
+          { name: 'body',     label: 'Body',     type: 'textarea', value: row.body     || '' },
+          { name: 'status',   label: 'Status',   type: 'select',   value: row.status   || 'idea', options: BACKLOG_STATUSES },
+          { name: 'priority', label: 'Priority (1=high, 2=mid, 3=low)', type: 'text', value: String(row.priority || 2) },
+          { name: 'source',   label: 'Source',   type: 'text',     value: row.source   || '' },
+          { name: 'tags',     label: 'Tags',     type: 'text',     value: row.tags     || '' },
+        ],
+        (v) => ({
+          sql: `UPDATE backlog SET ref=?, title=?, body=?, status=?, priority=?, source=?, tags=?, updated_at=datetime('now') WHERE id=?`,
+          params: [v.ref, v.title, v.body, v.status, parseInt(v.priority)||2, v.source, v.tags, row.id],
+        }),
+        () => ({
+          sql: `DELETE FROM backlog WHERE id=?`,
+          params: [row.id],
+        })
+      );
+
+      grid.appendChild(card);
+    });
+
+    area.appendChild(grid);
+    renderPagination(area, total, () => renderBacklog());
+
+    // BRIEF-015: New Entry bar
+    renderNewEntryBar(area, 'backlog',
+      [
+        { name: 'ref',    label: 'Ref (e.g. BACKLOG-010)', type: 'text', value: '' },
+        { name: 'title',  label: 'Title',    type: 'text',     value: '' },
+        { name: 'body',   label: 'Body',     type: 'textarea', value: '' },
+        { name: 'status', label: 'Status',   type: 'select',   value: 'idea', options: BACKLOG_STATUSES },
+        { name: 'priority', label: 'Priority (1=high, 2=mid, 3=low)', type: 'text', value: '2' },
+        { name: 'source', label: 'Source',   type: 'text',     value: '' },
+        { name: 'tags',   label: 'Tags',     type: 'text',     value: '' },
+      ],
+      (v) => ({
+        sql: `INSERT INTO backlog (ref, title, body, status, priority, source, tags, created_at)
+              VALUES (?,?,?,?,?,?,?,datetime('now'))`,
+        params: [v.ref, v.title, v.body, v.status, parseInt(v.priority)||2, v.source, v.tags],
+      })
+    );
+
+    area.querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.dataset.target);
+        target.classList.remove('truncated');
+        btn.remove();
+      });
+    });
+  }
+
+  // ─── PERSONAL RENDERERS (BRIEF-008) ───────────────────────────────────────
+
+  function renderPersonalJournal() {
+    const db = state.personalDb;
+    if (!db) { document.getElementById('content-area').innerHTML = emptyStateHTML('personal.db not loaded', 'Use "Load personal.db" in the sidebar.'); return; }
+    const area = document.getElementById('content-area');
+    const offset = state.page * state.pageSize;
+    const total = queryScalarFrom(db, `SELECT COUNT(*) FROM owner_journal`);
+    const rows = queryToRowsFrom(db,
+      `SELECT * FROM owner_journal ORDER BY date DESC LIMIT ? OFFSET ?`,
+      [state.pageSize, offset]
+    );
+
+    if (!rows.length) {
+      area.innerHTML = emptyStateHTML('No journal entries', 'Your personal journal is empty.');
+      renderNewEntryBar(area, 'owner_journal',
+        [
+          { name: 'date',  label: 'Date (YYYY-MM-DD)', type: 'text', value: new Date().toISOString().slice(0,10) },
+          { name: 'title', label: 'Title', type: 'text',     value: '' },
+          { name: 'body',  label: 'Body',  type: 'textarea', value: '' },
+          { name: 'mood',  label: 'Mood',  type: 'text',     value: '' },
+          { name: 'tags',  label: 'Tags',  type: 'text',     value: '' },
+        ],
+        (v) => ({
+          sql: `INSERT INTO owner_journal (date, title, body, mood, tags, created_at)
+                VALUES (?,?,?,?,?,datetime('now'))`,
+          params: [v.date, v.title, v.body, v.mood, v.tags],
+        })
+      );
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'cards-grid journal-grid';
+
+    rows.forEach(row => {
+      const card = document.createElement('div');
+      card.className = 'journal-card';
+      const metaParts = [];
+      if (row.date) metaParts.push(`<span class="journal-date">${esc(fmtDate(row.date))}</span>`);
+      if (row.mood) metaParts.push(`<span class="journal-mood">${esc(row.mood)}</span>`);
+      if (row.private) metaParts.push(`<span class="journal-mood">🔒 private</span>`);
+      const bodyText = row.body || '';
+      const shouldTruncate = bodyText.length > 600;
+      const bodyId = `pjbody-${row.id}`;
+      card.innerHTML = `
+        ${metaParts.length ? `<div class="journal-card-meta">${metaParts.join('')}</div>` : ''}
+        ${row.title ? `<div class="journal-card-title">${esc(row.title)}</div>` : ''}
+        <div class="journal-card-body ${shouldTruncate ? 'truncated' : ''}" id="${bodyId}">${esc(bodyText)}</div>
+        ${shouldTruncate ? `<button class="expand-btn" data-target="${bodyId}">Show more</button>` : ''}
+        ${renderTags(row.tags)}
+      `;
+
+      // BRIEF-015: attach edit / delete
+      attachCardActions(card, 'owner_journal',
+        [
+          { name: 'date',  label: 'Date',  type: 'text',     value: row.date  || '' },
+          { name: 'title', label: 'Title', type: 'text',     value: row.title || '' },
+          { name: 'body',  label: 'Body',  type: 'textarea', value: row.body  || '' },
+          { name: 'mood',  label: 'Mood',  type: 'text',     value: row.mood  || '' },
+          { name: 'tags',  label: 'Tags',  type: 'text',     value: row.tags  || '' },
+        ],
+        (v) => ({
+          sql: `UPDATE owner_journal SET date=?, title=?, body=?, mood=?, tags=? WHERE id=?`,
+          params: [v.date, v.title, v.body, v.mood, v.tags, row.id],
+        }),
+        () => ({
+          sql: `DELETE FROM owner_journal WHERE id=?`,
+          params: [row.id],
+        })
+      );
+
+      grid.appendChild(card);
+    });
+
+    area.appendChild(grid);
+    renderPagination(area, total, () => renderPersonalJournal());
+
+    // BRIEF-015: New Entry bar
+    renderNewEntryBar(area, 'owner_journal',
+      [
+        { name: 'date',  label: 'Date (YYYY-MM-DD)', type: 'text', value: new Date().toISOString().slice(0,10) },
+        { name: 'title', label: 'Title', type: 'text',     value: '' },
+        { name: 'body',  label: 'Body',  type: 'textarea', value: '' },
+        { name: 'mood',  label: 'Mood',  type: 'text',     value: '' },
+        { name: 'tags',  label: 'Tags',  type: 'text',     value: '' },
+      ],
+      (v) => ({
+        sql: `INSERT INTO owner_journal (date, title, body, mood, tags, created_at)
+              VALUES (?,?,?,?,?,datetime('now'))`,
+        params: [v.date, v.title, v.body, v.mood, v.tags],
+      })
+    );
+
+    area.querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById(btn.dataset.target).classList.remove('truncated');
+        btn.remove();
+      });
+    });
+  }
+
+  function renderPersonalNotes() {
+    const db = state.personalDb;
+    if (!db) { document.getElementById('content-area').innerHTML = emptyStateHTML('personal.db not loaded', 'Use "Load personal.db" in the sidebar.'); return; }
+    const area = document.getElementById('content-area');
+    const offset = state.page * state.pageSize;
+    const total = queryScalarFrom(db, `SELECT COUNT(*) FROM owner_notes`);
+    const rows = queryToRowsFrom(db,
+      `SELECT * FROM owner_notes ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+      [state.pageSize, offset]
+    );
+
+    if (!rows.length) {
+      area.innerHTML = emptyStateHTML('No notes', 'Your personal notes are empty.');
+      renderNewEntryBar(area, 'owner_notes',
+        [
+          { name: 'title',  label: 'Title',  type: 'text',     value: '' },
+          { name: 'body',   label: 'Body',   type: 'textarea', value: '' },
+          { name: 'source', label: 'Source', type: 'text',     value: '' },
+          { name: 'tags',   label: 'Tags',   type: 'text',     value: '' },
+        ],
+        (v) => ({
+          sql: `INSERT INTO owner_notes (title, body, source, tags, created_at)
+                VALUES (?,?,?,?,datetime('now'))`,
+          params: [v.title, v.body, v.source, v.tags],
+        })
+      );
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'cards-grid knowledge-grid';
+
+    rows.forEach(row => {
+      const card = document.createElement('div');
+      card.className = 'knowledge-card';
+      const bodyText = row.body || '';
+      const shouldTruncate = bodyText.length > 400;
+      const bodyId = `pnbody-${row.id}`;
+      card.innerHTML = `
+        ${row.title ? `<div class="knowledge-card-title">${esc(row.title)}${row.private ? ' 🔒' : ''}</div>` : ''}
+        <div class="knowledge-card-body ${shouldTruncate ? 'truncated' : ''}" id="${bodyId}">${esc(bodyText)}</div>
+        ${shouldTruncate ? `<button class="expand-btn" data-target="${bodyId}">Show more</button>` : ''}
+        ${row.source ? `<div class="knowledge-source">
+          <svg width="11" height="11" viewBox="0 0 15 15" fill="none">
+            <path d="M4 7.5h7M8.5 5l2.5 2.5-2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>${esc(row.source)}</span>
+        </div>` : ''}
+        ${renderTags(row.tags)}
+      `;
+
+      // BRIEF-015: attach edit / delete
+      attachCardActions(card, 'owner_notes',
+        [
+          { name: 'title',  label: 'Title',  type: 'text',     value: row.title  || '' },
+          { name: 'body',   label: 'Body',   type: 'textarea', value: row.body   || '' },
+          { name: 'source', label: 'Source', type: 'text',     value: row.source || '' },
+          { name: 'tags',   label: 'Tags',   type: 'text',     value: row.tags   || '' },
+        ],
+        (v) => ({
+          sql: `UPDATE owner_notes SET title=?, body=?, source=?, tags=? WHERE id=?`,
+          params: [v.title, v.body, v.source, v.tags, row.id],
+        }),
+        () => ({
+          sql: `DELETE FROM owner_notes WHERE id=?`,
+          params: [row.id],
+        })
+      );
+
+      grid.appendChild(card);
+    });
+
+    area.appendChild(grid);
+    renderPagination(area, total, () => renderPersonalNotes());
+
+    // BRIEF-015: New Entry bar
+    renderNewEntryBar(area, 'owner_notes',
+      [
+        { name: 'title',  label: 'Title',  type: 'text',     value: '' },
+        { name: 'body',   label: 'Body',   type: 'textarea', value: '' },
+        { name: 'source', label: 'Source', type: 'text',     value: '' },
+        { name: 'tags',   label: 'Tags',   type: 'text',     value: '' },
+      ],
+      (v) => ({
+        sql: `INSERT INTO owner_notes (title, body, source, tags, created_at)
+              VALUES (?,?,?,?,datetime('now'))`,
+        params: [v.title, v.body, v.source, v.tags],
+      })
+    );
+
+    area.querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById(btn.dataset.target).classList.remove('truncated');
+        btn.remove();
+      });
+    });
+  }
+
+  function renderPersonalTasks() {
+    const db = state.personalDb;
+    if (!db) { document.getElementById('content-area').innerHTML = emptyStateHTML('personal.db not loaded', 'Use "Load personal.db" in the sidebar.'); return; }
+    const area = document.getElementById('content-area');
+    const offset = state.page * state.pageSize;
+    const total = queryScalarFrom(db, `SELECT COUNT(*) FROM owner_tasks`);
+    const rows = queryToRowsFrom(db,
+      `SELECT * FROM owner_tasks ORDER BY status ASC, priority ASC, created_at DESC LIMIT ? OFFSET ?`,
+      [state.pageSize, offset]
+    );
+
+    const TASK_STATUSES = ['open', 'in_progress', 'done', 'deferred'];
+
+    if (!rows.length) {
+      area.innerHTML = emptyStateHTML('No tasks', 'Your personal task list is empty.');
+      renderNewEntryBar(area, 'owner_tasks',
+        [
+          { name: 'title',    label: 'Title',    type: 'text',     value: '' },
+          { name: 'body',     label: 'Body',     type: 'textarea', value: '' },
+          { name: 'status',   label: 'Status',   type: 'select',   value: 'open', options: TASK_STATUSES },
+          { name: 'priority', label: 'Priority (1=high, 2=mid, 3=low)', type: 'text', value: '2' },
+          { name: 'due_date', label: 'Due Date (YYYY-MM-DD)', type: 'text', value: '' },
+          { name: 'tags',     label: 'Tags',     type: 'text',     value: '' },
+        ],
+        (v) => ({
+          sql: `INSERT INTO owner_tasks (title, body, status, priority, due_date, tags, created_at)
+                VALUES (?,?,?,?,?,?,datetime('now'))`,
+          params: [v.title, v.body, v.status, parseInt(v.priority)||2, v.due_date, v.tags],
+        })
+      );
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'cards-grid backlog-grid';
+
+    rows.forEach(row => {
+      const card = document.createElement('div');
+      card.className = 'task-card';
+      const statusVal = (row.status || 'open').toLowerCase();
+      const statusClass = statusVal === 'done' ? 'complete'
+                        : statusVal === 'in_progress' ? 'active'
+                        : statusVal === 'deferred' ? 'deferred'
+                        : 'open';
+      const priorityNum = row.priority || 2;
+      const priorityLabel = ['', 'P1', 'P2', 'P3'][priorityNum] || 'P2';
+      const priorityClass = ['', 'p1', 'p2', 'p3'][priorityNum] || 'p2';
+      const bodyText = row.body || '';
+      const shouldTruncate = bodyText.length > 400;
+      const bodyId = `ptbody-${row.id}`;
+      card.innerHTML = `
+        <div class="task-card-header">
+          <div class="task-title">${esc(row.title || 'Untitled')}${row.private ? ' 🔒' : ''}</div>
+          <span class="priority-badge ${priorityClass}">${priorityLabel}</span>
+          <span class="status-badge ${statusClass}">
+            <span class="status-dot"></span>
+            ${esc(row.status || 'open')}
+          </span>
+        </div>
+        ${row.due_date ? `<div class="task-due">Due: ${esc(fmtDate(row.due_date))}</div>` : ''}
+        ${bodyText ? `<div class="brief-body ${shouldTruncate ? 'truncated' : ''}" id="${bodyId}">${esc(bodyText)}</div>
+        ${shouldTruncate ? `<button class="expand-btn" data-target="${bodyId}">Show more</button>` : ''}` : ''}
+        ${renderTags(row.tags)}
+      `;
+
+      // BRIEF-015: attach edit / delete
+      attachCardActions(card, 'owner_tasks',
+        [
+          { name: 'title',    label: 'Title',    type: 'text',     value: row.title    || '' },
+          { name: 'body',     label: 'Body',     type: 'textarea', value: row.body     || '' },
+          { name: 'status',   label: 'Status',   type: 'select',   value: row.status   || 'open', options: TASK_STATUSES },
+          { name: 'priority', label: 'Priority (1=high, 2=mid, 3=low)', type: 'text', value: String(row.priority || 2) },
+          { name: 'due_date', label: 'Due Date (YYYY-MM-DD)', type: 'text', value: row.due_date || '' },
+          { name: 'tags',     label: 'Tags',     type: 'text',     value: row.tags     || '' },
+        ],
+        (v) => ({
+          sql: `UPDATE owner_tasks SET title=?, body=?, status=?, priority=?, due_date=?, tags=? WHERE id=?`,
+          params: [v.title, v.body, v.status, parseInt(v.priority)||2, v.due_date, v.tags, row.id],
+        }),
+        () => ({
+          sql: `DELETE FROM owner_tasks WHERE id=?`,
+          params: [row.id],
+        })
+      );
+
+      grid.appendChild(card);
+    });
+
+    area.appendChild(grid);
+    renderPagination(area, total, () => renderPersonalTasks());
+
+    // BRIEF-015: New Entry bar
+    renderNewEntryBar(area, 'owner_tasks',
+      [
+        { name: 'title',    label: 'Title',    type: 'text',     value: '' },
+        { name: 'body',     label: 'Body',     type: 'textarea', value: '' },
+        { name: 'status',   label: 'Status',   type: 'select',   value: 'open', options: TASK_STATUSES },
+        { name: 'priority', label: 'Priority (1=high, 2=mid, 3=low)', type: 'text', value: '2' },
+        { name: 'due_date', label: 'Due Date (YYYY-MM-DD)', type: 'text', value: '' },
+        { name: 'tags',     label: 'Tags',     type: 'text',     value: '' },
+      ],
+      (v) => ({
+        sql: `INSERT INTO owner_tasks (title, body, status, priority, due_date, tags, created_at)
+              VALUES (?,?,?,?,?,?,datetime('now'))`,
+        params: [v.title, v.body, v.status, parseInt(v.priority)||2, v.due_date, v.tags],
+      })
+    );
+
+    area.querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById(btn.dataset.target).classList.remove('truncated');
         btn.remove();
       });
     });
@@ -2093,6 +3140,278 @@
     }
   }
 
+  // ─── WRITE CAPABILITY (BRIEF-015) ─────────────────────────────────────────
+
+  // Which DB owns each writable table
+  const TABLE_DB_OWNER = {
+    knowledge:   'pka',
+    backlog:     'pka',
+    journal:     'pka',
+    owner_journal: 'personal',
+    owner_notes:  'personal',
+    owner_tasks:  'personal',
+  };
+
+  function getDbForWrite(tableName) {
+    return TABLE_DB_OWNER[tableName] === 'personal' ? state.personalDb : state.db;
+  }
+
+  function markUnsaved(which) {
+    if (which === 'pka') state.pkaUnsaved = true;
+    else state.personalUnsaved = true;
+    updateSaveBar();
+  }
+
+  function markSaved(which) {
+    if (which === 'pka') state.pkaUnsaved = false;
+    else state.personalUnsaved = false;
+    updateSaveBar();
+  }
+
+  function updateSaveBar() {
+    const bar    = document.getElementById('save-bar');
+    const msg    = document.getElementById('save-bar-msg');
+    const btnPka = document.getElementById('btn-save-pka');
+    const btnPer = document.getElementById('btn-save-personal');
+    const area   = document.getElementById('content-area');
+
+    if (!state.pkaUnsaved && !state.personalUnsaved) {
+      bar.classList.remove('visible');
+      area.classList.remove('save-bar-active');
+      return;
+    }
+    bar.classList.add('visible');
+    area.classList.add('save-bar-active');
+    const parts = [];
+    if (state.pkaUnsaved)      parts.push('<strong>pka.db</strong>');
+    if (state.personalUnsaved) parts.push('<strong>personal.db</strong>');
+    msg.innerHTML = 'Unsaved changes in ' + parts.join(' and ') + ' — write back to disk:';
+    btnPka.style.display = state.pkaUnsaved      ? 'inline-flex' : 'none';
+    btnPer.style.display = state.personalUnsaved ? 'inline-flex' : 'none';
+  }
+
+  async function saveDb(which) {
+    const db         = which === 'pka' ? state.db : state.personalDb;
+    const fileHandle = which === 'pka' ? state.pkaFileHandle : state.personalFileHandle;
+    if (!db) return;
+
+    const data = db.export(); // Uint8Array
+
+    try {
+      if (fileHandle) {
+        let perm = await fileHandle.queryPermission({ mode: 'readwrite' });
+        if (perm !== 'granted') {
+          perm = await fileHandle.requestPermission({ mode: 'readwrite' });
+        }
+        if (perm === 'granted') {
+          const writable = await fileHandle.createWritable();
+          await writable.write(data);
+          await writable.close();
+          markSaved(which);
+          return;
+        }
+      }
+      // Fallback: save picker
+      if ('showSaveFilePicker' in window) {
+        const fh = await window.showSaveFilePicker({
+          suggestedName: which === 'pka' ? 'pka.db' : 'personal.db',
+          types: [{ description: 'SQLite Database', accept: { 'application/octet-stream': ['.db'] } }],
+        });
+        const writable = await fh.createWritable();
+        await writable.write(data);
+        await writable.close();
+        if (which === 'pka') state.pkaFileHandle = fh;
+        else state.personalFileHandle = fh;
+        markSaved(which);
+      } else {
+        // Last resort: download
+        const blob = new Blob([data], { type: 'application/octet-stream' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url;
+        a.download = which === 'pka' ? 'pka.db' : 'personal.db';
+        a.click();
+        URL.revokeObjectURL(url);
+        markSaved(which);
+      }
+    } catch (e) {
+      if (e.name !== 'AbortError') showError('Save failed: ' + e.message);
+    }
+  }
+
+  // ─── WRITE HELPERS ─────────────────────────────────────────────────────────
+
+  // Build a minimal inline edit/new form.
+  // fields: [{name, label, type:'text'|'textarea'|'select', options:[]}]
+  // onSave(values) — caller handles the SQL
+  function buildInlineForm(fields, onSave, onCancel, saveLabel) {
+    const form = document.createElement('div');
+    form.className = 'inline-form';
+
+    fields.forEach(f => {
+      const row = document.createElement('div');
+      row.className = 'form-row';
+
+      const lbl = document.createElement('label');
+      lbl.textContent = f.label || f.name;
+      row.appendChild(lbl);
+
+      let input;
+      if (f.type === 'textarea') {
+        input = document.createElement('textarea');
+        input.rows = 5;
+        input.value = f.value != null ? f.value : '';
+      } else if (f.type === 'select') {
+        input = document.createElement('select');
+        (f.options || []).forEach(opt => {
+          const o = document.createElement('option');
+          o.value = opt;
+          o.textContent = opt;
+          if (opt === f.value) o.selected = true;
+          input.appendChild(o);
+        });
+      } else {
+        input = document.createElement('input');
+        input.type = 'text';
+        input.value = f.value != null ? f.value : '';
+      }
+      input.dataset.fieldName = f.name;
+      row.appendChild(input);
+      form.appendChild(row);
+    });
+
+    const actions = document.createElement('div');
+    actions.className = 'form-actions';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'btn-form-save';
+    saveBtn.textContent = saveLabel || 'Save';
+    saveBtn.addEventListener('click', () => {
+      const values = {};
+      form.querySelectorAll('[data-field-name]').forEach(el => {
+        values[el.dataset.fieldName] = el.value.trim() === '' ? null : el.value;
+      });
+      onSave(values);
+    });
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn-form-cancel';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', onCancel);
+
+    actions.append(saveBtn, cancelBtn);
+    form.appendChild(actions);
+    return form;
+  }
+
+  // Append edit + delete buttons to a card element.
+  // fields: same as buildInlineForm
+  // updateSQL: fn(values) => {sql, params}
+  // deleteSQL:  fn() => {sql, params}
+  function attachCardActions(card, tableName, fields, updateSQL, deleteSQL) {
+    const which = TABLE_DB_OWNER[tableName] || 'pka';
+
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn-card-action';
+    editBtn.innerHTML = `<svg width="11" height="11" viewBox="0 0 15 15" fill="none"><path d="M11.5 1.5l2 2-9 9H2.5v-2l9-9z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg> Edit`;
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn-card-action danger';
+    delBtn.innerHTML = `<svg width="11" height="11" viewBox="0 0 15 15" fill="none"><path d="M2 4h11M5 4V2.5h5V4M6 7v4M9 7v4M3.5 4l.5 9h7l.5-9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Delete`;
+
+    editBtn.addEventListener('click', () => {
+      // Toggle: if form already open, close it
+      const existingForm = card.querySelector('.inline-form');
+      if (existingForm) { existingForm.remove(); editBtn.innerHTML = `<svg width="11" height="11" viewBox="0 0 15 15" fill="none"><path d="M11.5 1.5l2 2-9 9H2.5v-2l9-9z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg> Edit`; return; }
+
+      editBtn.innerHTML = `<svg width="11" height="11" viewBox="0 0 15 15" fill="none"><path d="M11.5 1.5l2 2-9 9H2.5v-2l9-9z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg> Close`;
+
+      const db = getDbForWrite(tableName);
+      const form = buildInlineForm(
+        fields,
+        (values) => {
+          try {
+            const { sql, params } = updateSQL(values);
+            db.run(sql, params);
+            markUnsaved(which);
+            // Re-render current table
+            state.page = 0;
+            renderTable(state.activeTable);
+          } catch (e) {
+            showError('Update failed: ' + e.message);
+          }
+        },
+        () => { form.remove(); editBtn.innerHTML = `<svg width="11" height="11" viewBox="0 0 15 15" fill="none"><path d="M11.5 1.5l2 2-9 9H2.5v-2l9-9z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg> Edit`; },
+        'Save Changes'
+      );
+      card.appendChild(form);
+    });
+
+    delBtn.addEventListener('click', () => {
+      if (!window.confirm('Delete this record? This cannot be undone.')) return;
+      try {
+        const db = getDbForWrite(tableName);
+        const { sql, params } = deleteSQL();
+        db.run(sql, params);
+        markUnsaved(which);
+        state.page = 0;
+        renderTable(state.activeTable);
+      } catch (e) {
+        showError('Delete failed: ' + e.message);
+      }
+    });
+
+    actions.append(editBtn, delBtn);
+    card.appendChild(actions);
+  }
+
+  // Render a "New Entry" bar and inline form at the top of a content area.
+  // fields / onSave / tableName as above.
+  function renderNewEntryBar(area, tableName, fields, insertSQL) {
+    const which = TABLE_DB_OWNER[tableName] || 'pka';
+
+    const bar = document.createElement('div');
+    bar.className = 'new-entry-bar';
+
+    const btn = document.createElement('button');
+    btn.className = 'btn-new-entry';
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 15 15" fill="none"><path d="M7.5 1.5v12M1.5 7.5h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> New Entry`;
+
+    bar.appendChild(btn);
+    area.insertBefore(bar, area.firstChild);
+
+    let formEl = null;
+
+    btn.addEventListener('click', () => {
+      if (formEl) { formEl.remove(); formEl = null; btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 15 15" fill="none"><path d="M7.5 1.5v12M1.5 7.5h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> New Entry`; return; }
+
+      btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 15 15" fill="none"><path d="M7.5 1.5v12M1.5 7.5h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Cancel`;
+
+      const db = getDbForWrite(tableName);
+      formEl = buildInlineForm(
+        fields,
+        (values) => {
+          try {
+            const { sql, params } = insertSQL(values);
+            db.run(sql, params);
+            markUnsaved(which);
+            state.page = 0;
+            renderTable(state.activeTable);
+          } catch (e) {
+            showError('Insert failed: ' + e.message);
+          }
+        },
+        () => { formEl.remove(); formEl = null; btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 15 15" fill="none"><path d="M7.5 1.5v12M1.5 7.5h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> New Entry`; },
+        'Add Entry'
+      );
+      formEl.classList.add('new-entry-form');
+      bar.insertAdjacentElement('afterend', formEl);
+    });
+  }
+
   // ─── SEARCH ────────────────────────────────────────────────────────────────
 
   function handleSearch(query) {
@@ -2118,7 +3437,7 @@
       return;
     }
 
-    // Cross-table search across journal + knowledge
+    // Cross-table search across journal, knowledge, backlog (+ personal if loaded)
     document.getElementById('topbar-title').textContent = 'Search results';
     document.getElementById('topbar-count').textContent = `"${q}"`;
     renderSearchResults(q);
@@ -2138,18 +3457,43 @@
        ORDER BY created_at DESC LIMIT 20`,
       [likeQ, likeQ]
     );
+    const backlogRows = queryToRows(
+      `SELECT * FROM backlog WHERE body LIKE ? OR title LIKE ?
+       ORDER BY created_at DESC LIMIT 20`,
+      [likeQ, likeQ]
+    );
 
-    if (!journalRows.length && !knowledgeRows.length) {
+    // Personal search if personal.db is loaded
+    let pJournalRows = [], pNotesRows = [], pTasksRows = [];
+    if (state.personalDb) {
+      pJournalRows = queryToRowsFrom(state.personalDb,
+        `SELECT * FROM owner_journal WHERE body LIKE ? OR title LIKE ? ORDER BY date DESC LIMIT 15`,
+        [likeQ, likeQ]);
+      pNotesRows = queryToRowsFrom(state.personalDb,
+        `SELECT * FROM owner_notes WHERE body LIKE ? OR title LIKE ? ORDER BY created_at DESC LIMIT 15`,
+        [likeQ, likeQ]);
+      pTasksRows = queryToRowsFrom(state.personalDb,
+        `SELECT * FROM owner_tasks WHERE body LIKE ? OR title LIKE ? ORDER BY created_at DESC LIMIT 15`,
+        [likeQ, likeQ]);
+    }
+
+    const anyResults = journalRows.length || knowledgeRows.length || backlogRows.length
+                    || pJournalRows.length || pNotesRows.length || pTasksRows.length;
+    if (!anyResults) {
       area.innerHTML = emptyStateHTML('No results', `Nothing found for "${esc(q)}".`);
       return;
     }
 
-    if (journalRows.length) {
+    // Helper: append a section label
+    function appendLabel(text) {
       const label = document.createElement('div');
       label.className = 'search-section-label';
-      label.textContent = `Journal — ${journalRows.length} result${journalRows.length !== 1 ? 's' : ''}`;
+      label.textContent = text;
       area.appendChild(label);
+    }
 
+    if (journalRows.length) {
+      appendLabel(`Journal — ${journalRows.length} result${journalRows.length !== 1 ? 's' : ''}`);
       const grid = document.createElement('div');
       grid.className = 'cards-grid journal-grid';
       journalRows.forEach(row => {
@@ -2171,11 +3515,7 @@
     }
 
     if (knowledgeRows.length) {
-      const label = document.createElement('div');
-      label.className = 'search-section-label';
-      label.textContent = `Knowledge — ${knowledgeRows.length} result${knowledgeRows.length !== 1 ? 's' : ''}`;
-      area.appendChild(label);
-
+      appendLabel(`Knowledge — ${knowledgeRows.length} result${knowledgeRows.length !== 1 ? 's' : ''}`);
       const grid = document.createElement('div');
       grid.className = 'cards-grid knowledge-grid';
       knowledgeRows.forEach(row => {
@@ -2191,6 +3531,91 @@
             <span>${esc(row.source)}</span>
           </div>` : ''}
           ${renderTags(row.tags)}
+        `;
+        grid.appendChild(card);
+      });
+      area.appendChild(grid);
+    }
+
+    if (backlogRows.length) {
+      appendLabel(`Backlog — ${backlogRows.length} result${backlogRows.length !== 1 ? 's' : ''}`);
+      const grid = document.createElement('div');
+      grid.className = 'cards-grid backlog-grid';
+      backlogRows.forEach(row => {
+        const card = document.createElement('div');
+        card.className = 'brief-card';
+        const statusVal = (row.status || 'idea').toLowerCase();
+        const priorityNum = row.priority || 2;
+        const priorityLabel = ['', 'P1', 'P2', 'P3'][priorityNum] || 'P2';
+        const priorityClass = ['', 'p1', 'p2', 'p3'][priorityNum] || 'p2';
+        card.innerHTML = `
+          <div class="brief-card-header">
+            ${row.ref ? `<span class="brief-ref">${esc(row.ref)}</span>` : ''}
+            <div class="brief-title">${highlight(row.title || 'Untitled', q)}</div>
+            <span class="priority-badge ${priorityClass}">${priorityLabel}</span>
+            <span class="status-badge ${statusVal}"><span class="status-dot"></span>${esc(row.status || 'idea')}</span>
+          </div>
+          <div class="brief-body">${highlight(row.body || '', q)}</div>
+          ${renderTags(row.tags)}
+        `;
+        grid.appendChild(card);
+      });
+      area.appendChild(grid);
+    }
+
+    if (pJournalRows.length) {
+      appendLabel(`Personal Journal — ${pJournalRows.length} result${pJournalRows.length !== 1 ? 's' : ''}`);
+      const grid = document.createElement('div');
+      grid.className = 'cards-grid journal-grid';
+      pJournalRows.forEach(row => {
+        const card = document.createElement('div');
+        card.className = 'journal-card';
+        const metaParts = [];
+        if (row.date) metaParts.push(`<span class="journal-date">${esc(fmtDate(row.date))}</span>`);
+        if (row.mood) metaParts.push(`<span class="journal-mood">${esc(row.mood)}</span>`);
+        if (row.private) metaParts.push(`<span class="journal-mood">🔒</span>`);
+        card.innerHTML = `
+          ${metaParts.length ? `<div class="journal-card-meta">${metaParts.join('')}</div>` : ''}
+          ${row.title ? `<div class="journal-card-title">${highlight(row.title, q)}</div>` : ''}
+          <div class="journal-card-body">${highlight(row.body || '', q)}</div>
+        `;
+        grid.appendChild(card);
+      });
+      area.appendChild(grid);
+    }
+
+    if (pNotesRows.length) {
+      appendLabel(`Personal Notes — ${pNotesRows.length} result${pNotesRows.length !== 1 ? 's' : ''}`);
+      const grid = document.createElement('div');
+      grid.className = 'cards-grid knowledge-grid';
+      pNotesRows.forEach(row => {
+        const card = document.createElement('div');
+        card.className = 'knowledge-card';
+        card.innerHTML = `
+          ${row.title ? `<div class="knowledge-card-title">${highlight(row.title, q)}${row.private ? ' 🔒' : ''}</div>` : ''}
+          <div class="knowledge-card-body">${highlight(row.body || '', q)}</div>
+          ${renderTags(row.tags)}
+        `;
+        grid.appendChild(card);
+      });
+      area.appendChild(grid);
+    }
+
+    if (pTasksRows.length) {
+      appendLabel(`Personal Tasks — ${pTasksRows.length} result${pTasksRows.length !== 1 ? 's' : ''}`);
+      const grid = document.createElement('div');
+      grid.className = 'cards-grid backlog-grid';
+      pTasksRows.forEach(row => {
+        const card = document.createElement('div');
+        card.className = 'task-card';
+        const statusVal = (row.status || 'open').toLowerCase();
+        const statusClass = statusVal === 'done' ? 'complete' : statusVal === 'in_progress' ? 'active' : statusVal === 'deferred' ? 'deferred' : 'open';
+        card.innerHTML = `
+          <div class="task-card-header">
+            <div class="task-title">${highlight(row.title || 'Untitled', q)}${row.private ? ' 🔒' : ''}</div>
+            <span class="status-badge ${statusClass}"><span class="status-dot"></span>${esc(row.status || 'open')}</span>
+          </div>
+          <div class="brief-body">${highlight(row.body || '', q)}</div>
         `;
         grid.appendChild(card);
       });
@@ -2256,6 +3681,7 @@
           types: [{ description: 'SQLite Database', accept: { 'application/octet-stream': ['.db'] } }],
           multiple: false,
         });
+        state.pkaFileHandle = fileHandle;  // BRIEF-015: store for write-back
         const file = await fileHandle.getFile();
         document.getElementById('db-filename').textContent = file.name;
         const buf = await file.arrayBuffer();
@@ -2275,6 +3701,11 @@
 
   document.getElementById('open-btn').addEventListener('click', openFile);
   document.getElementById('reload-btn').addEventListener('click', resetToLanding);
+  document.getElementById('load-personal-btn').addEventListener('click', openPersonalDb);
+
+  // BRIEF-015: save bar buttons
+  document.getElementById('btn-save-pka').addEventListener('click', () => saveDb('pka'));
+  document.getElementById('btn-save-personal').addEventListener('click', () => saveDb('personal'));
 
   document.getElementById('fallback-input').addEventListener('change', async (e) => {
     const file = e.target.files[0];

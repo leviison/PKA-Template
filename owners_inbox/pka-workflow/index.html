@@ -24,6 +24,17 @@
       --accent-dim: rgba(124, 140, 248, 0.12);
       --accent-border: rgba(124, 140, 248, 0.3);
 
+      --green:      #4ade80;
+      --green-dim:  rgba(74, 222, 128, 0.1);
+      --green-border: rgba(74, 222, 128, 0.3);
+
+      --red:        #f87171;
+      --red-dim:    rgba(248, 113, 113, 0.1);
+      --red-border: rgba(248, 113, 113, 0.3);
+
+      --yellow:     #fbbf24;
+      --yellow-dim: rgba(251, 191, 36, 0.1);
+
       --radius:    10px;
       --radius-sm: 6px;
 
@@ -263,6 +274,12 @@
       color: var(--text-primary);
     }
 
+    .btn-connect.connected {
+      color: var(--green);
+      border-color: var(--green-border);
+      background: var(--green-dim);
+    }
+
     .btn-refresh {
       display: none;
       align-items: center;
@@ -281,7 +298,7 @@
 
     .btn-refresh:hover { opacity: 0.8; }
 
-    #fallback-db-input { display: none; }
+    #fallback-db-input, #fallback-personal-input { display: none; }
 
     /* ─── STATIC FALLBACK BANNER ────────────────────────────────────── */
 
@@ -312,6 +329,723 @@
     }
 
     .static-banner-dismiss:hover { opacity: 1; }
+
+    /* ─── DATA TAB ──────────────────────────────────────────────────── */
+
+    .data-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .data-header-left h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      letter-spacing: -0.4px;
+    }
+
+    .data-header-left p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 580px;
+    }
+
+    .db-status-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .db-status-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+    }
+
+    .db-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+
+    .db-status-dot.connected { background: var(--green); }
+
+    .db-status-label {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .db-status-text {
+      color: var(--text-secondary);
+    }
+
+    .db-status-btn {
+      padding: 3px 8px;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-border);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .db-status-btn:hover { opacity: 0.8; }
+
+    /* Table selector */
+    .table-selector {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .table-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .table-pill:hover {
+      color: var(--text-primary);
+      border-color: var(--accent-border);
+    }
+
+    .table-pill.active {
+      color: var(--accent);
+      background: var(--accent-dim);
+      border-color: var(--accent-border);
+    }
+
+    .table-pill .db-badge {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-tertiary);
+      padding: 1px 4px;
+      background: var(--bg-input);
+      border-radius: 3px;
+    }
+
+    .table-pill.active .db-badge {
+      color: var(--accent);
+      background: rgba(124, 140, 248, 0.15);
+    }
+
+    /* Table panel */
+    .table-panel {
+      display: none;
+    }
+    .table-panel.active {
+      display: block;
+    }
+
+    .table-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .table-panel-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .table-panel-header .record-count {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-left: 10px;
+    }
+
+    .btn-new-record {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 14px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--bg);
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-new-record:hover { opacity: 0.85; }
+    .btn-new-record:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* DB-not-connected notice */
+    .db-required-notice {
+      padding: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    /* Records list */
+    .records-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .record-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .record-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+    }
+
+    .record-card-header:hover {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .record-id {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+      width: 32px;
+    }
+
+    .record-title {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .record-meta {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+      max-width: 160px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .record-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .btn-edit, .btn-delete {
+      padding: 4px 10px;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.12s;
+    }
+
+    .btn-edit {
+      color: var(--accent);
+      background: var(--accent-dim);
+      border-color: var(--accent-border);
+    }
+    .btn-edit:hover { opacity: 0.8; }
+
+    .btn-delete {
+      color: var(--red);
+      background: var(--red-dim);
+      border-color: var(--red-border);
+    }
+    .btn-delete:hover { opacity: 0.8; }
+
+    /* Inline form */
+    .record-form {
+      padding: 16px;
+      border-top: 1px solid var(--border-soft);
+      background: var(--bg-input);
+      display: none;
+    }
+    .record-form.open { display: block; }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .form-row:last-child { margin-bottom: 0; }
+
+    .form-row label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-row input[type="text"],
+    .form-row input[type="date"],
+    .form-row input[type="number"],
+    .form-row select,
+    .form-row textarea {
+      padding: 8px 10px;
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--text-primary);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+      border-color: var(--accent-border);
+    }
+
+    .form-row textarea {
+      min-height: 90px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .form-row-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .form-row-check label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .form-row-check input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 8px;
+      padding-top: 8px;
+      margin-top: 12px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .btn-save-record {
+      padding: 7px 16px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--bg);
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-save-record:hover { opacity: 0.85; }
+
+    .btn-cancel-record {
+      padding: 7px 14px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .btn-cancel-record:hover {
+      color: var(--text-primary);
+      border-color: var(--text-tertiary);
+    }
+
+    /* New record form (at top of list) */
+    .new-record-form {
+      background: var(--bg-card);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .new-record-form.open { display: block; }
+    .new-record-form h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    /* ─── SAVE BAR ──────────────────────────────────────────────────── */
+
+    .save-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 12px 24px;
+      background: #1a1a22;
+      border-top: 1px solid var(--accent-border);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+    }
+
+    .save-bar.visible { display: flex; }
+
+    .save-bar-msg {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .save-bar-msg strong {
+      color: var(--yellow);
+    }
+
+    .btn-save-db {
+      padding: 7px 16px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--bg);
+      background: var(--green);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-save-db:hover { opacity: 0.85; }
+    .btn-save-db:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ─── SYSTEM TAB ────────────────────────────────────────────────── */
+
+    .system-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .system-header-left h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      letter-spacing: -0.4px;
+    }
+
+    .system-header-left p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 580px;
+    }
+
+    .btn-system-refresh {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-system-refresh:hover { opacity: 0.8; }
+
+    .system-section {
+      margin-bottom: 52px;
+    }
+    .system-section:last-child { margin-bottom: 0; }
+
+    .system-section-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-sm);
+      padding: 3px 9px;
+      margin-bottom: 12px;
+    }
+
+    .system-section h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      letter-spacing: -0.2px;
+    }
+
+    .system-section-caption {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    /* Proposals */
+    .proposal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .proposal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .proposal-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 16px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .proposal-card-header:hover { background: rgba(255,255,255,0.02); }
+
+    .proposal-status-badge {
+      flex-shrink: 0;
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--yellow-dim);
+      color: var(--yellow);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .proposal-title {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .proposal-date {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+    }
+
+    .proposal-expand-icon {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+    .proposal-card.open .proposal-expand-icon { transform: rotate(90deg); }
+
+    .proposal-body {
+      display: none;
+      padding: 12px 16px 14px;
+      border-top: 1px solid var(--border-soft);
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .proposal-card.open .proposal-body { display: block; }
+
+    /* Changelog entries */
+    .changelog-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .changelog-entry {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .changelog-entry-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .changelog-entry-header:hover { background: rgba(255,255,255,0.02); }
+
+    .changelog-version {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .changelog-date {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+      flex-shrink: 0;
+    }
+
+    .changelog-preview {
+      flex: 1;
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .changelog-expand-icon {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+    .changelog-entry.open .changelog-expand-icon { transform: rotate(90deg); }
+
+    .changelog-body {
+      display: none;
+      padding: 14px 16px 16px;
+      border-top: 1px solid var(--border-soft);
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .changelog-entry.open .changelog-body { display: block; }
+    .changelog-body p { margin-bottom: 8px; }
+    .changelog-body strong { color: var(--text-primary); }
+
+    /* Capabilities table */
+    .capabilities-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .capabilities-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-tertiary);
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .capabilities-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-soft);
+      vertical-align: middle;
+    }
+
+    .capabilities-table tr:last-child td { border-bottom: none; }
+
+    .capabilities-table .cap-name {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .capabilities-table .cap-value {
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .capabilities-table .cap-value.active-val { color: var(--green); }
+    .capabilities-table .cap-value.pending-val { color: var(--yellow); }
+
+    .capabilities-table .cap-note {
+      color: var(--text-tertiary);
+      font-size: 12px;
+    }
+
+    .cap-table-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .system-db-notice {
+      padding: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-secondary);
+      font-size: 13px;
+      text-align: center;
+    }
+
   </style>
 </head>
 <body>
@@ -329,8 +1063,17 @@
         </svg>
         Connect pka.db
       </button>
+      <button class="btn-connect" id="btn-connect-personal">
+        <svg width="12" height="12" viewBox="0 0 15 15" fill="none">
+          <path d="M7.5 1C4.46 1 2 2.57 2 4.5v6C2 12.43 4.46 14 7.5 14s5.5-1.57 5.5-3.5v-6C13 2.57 10.54 1 7.5 1z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+          <ellipse cx="7.5" cy="4.5" rx="5.5" ry="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
+          <path d="M2 7.5c0 .83 2.46 1.5 5.5 1.5S13 8.33 13 7.5" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        Connect personal.db
+      </button>
       <button class="btn-refresh" id="btn-refresh-db">&#8635; Refresh</button>
       <input type="file" id="fallback-db-input" accept=".db,application/octet-stream" />
+      <input type="file" id="fallback-personal-input" accept=".db,application/octet-stream" />
     </div>
   </header>
 
@@ -338,6 +1081,8 @@
   <nav class="tab-nav">
     <button class="tab-btn active" onclick="switchTab('workflow', this)">Workflow</button>
     <button class="tab-btn" onclick="switchTab('engineering', this)">Engineering</button>
+    <button class="tab-btn" onclick="switchTab('data', this)">Data</button>
+    <button class="tab-btn" onclick="switchTab('system', this)">System</button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════════════
@@ -346,7 +1091,7 @@
   <div id="tab-workflow" class="tab-panel active">
     <div class="tab-intro">
       <h2>PKA Operational Workflow</h2>
-      <p>End-to-end view of how work enters the system, gets routed by Leroy, is executed by the team, and flows back to Levi — including task, hiring, and asset-review paths.</p>
+      <p>End-to-end view of how work enters the system, gets routed by Leroy, is executed by the team, and flows back to the owner — including task, hiring, and asset-review paths.</p>
     </div>
 
     <div id="static-banner" class="static-banner">
@@ -361,8 +1106,8 @@ flowchart TD
 
   subgraph OWN["Owner Layer"]
     direction TB
-    LEVI["👤 Levi\nOwner — source of all intent"]
-    LEVI_GATE{"Levi Approval\nGate"}
+    OWNER["👤 Owner\nSource of all intent"]
+    OWNER_GATE{"Owner Approval\nGate"}
   end
 
   subgraph ORCH["Orchestration Layer"]
@@ -374,7 +1119,6 @@ flowchart TD
     direction TB
     SAM["Sam\nPersona Architect"]
     PAX["PAX\nResearch + Asset Analyst"]
-    ROWAN["Rowan\nKnowledge Interface Dev"]
   end
 
   subgraph STORE["Storage Layer"]
@@ -387,7 +1131,7 @@ flowchart TD
 
   subgraph FEED["Feedback Loop"]
     direction TB
-    RATING["Levi rates deliverable\n1–5 stars"]
+    RATING["Owner rates deliverable\n1–5 stars"]
     FTABLE["feedback table\nrating + notes stored"]
     SAMREV["Sam reviews low ratings"]
     PUPDATE["Persona updated\nif needed"]
@@ -395,38 +1139,35 @@ flowchart TD
   end
 
   %% Entry
-  LEVI -->|"All intent flows through"| LEROY
+  OWNER -->|"All intent flows through"| LEROY
 
   %% ── PATH 1: Task Flow ──────────────────────────────────────────────
   LEROY -->|"1 · Task: writes brief_ref.md"| TCOMMS
-  TCOMMS -->|"Team member reads brief"| ROWAN
   TCOMMS -->|"Team member reads brief"| SAM
   TCOMMS -->|"Team member reads brief"| PAX
-  ROWAN -->|"Delivers to"| OINBOX
   SAM -->|"Delivers to"| OINBOX
   PAX -->|"Delivers to"| OINBOX
-  OINBOX -->|"Levi reviews"| RATING
+  OINBOX -->|"Owner reviews"| RATING
 
   %% ── PATH 2: Hiring Flow ────────────────────────────────────────────
   LEROY -->|"2 · Gap identified"| SAM
   SAM -->|"Research request"| PAX
   PAX -->|"Research complete"| SAM
-  SAM -->|"Persona draft"| LEVI_GATE
-  LEVI_GATE -->|"Approved"| TEAM
+  SAM -->|"Persona draft"| OWNER_GATE
+  OWNER_GATE -->|"Approved"| TEAM
 
   %% ── PATH 3: Asset Review Flow ──────────────────────────────────────
-  LEVI -->|"3 · Drops file"| TINBOX
+  OWNER -->|"3 · Drops file"| TINBOX
   TINBOX -->|"PAX picks up"| PAX
   PAX -->|"Extracts content"| DB
   DB -->|"Viewer queries"| OINBOX
 
   %% DB writes
-  ROWAN -->|"Inserts rows"| DB
   SAM -->|"Inserts rows"| DB
   LEROY -->|"briefs + deliverables rows"| DB
         </div>
       </div>
-      <p class="diagram-caption" style="margin-top:14px;">All work originates with Levi, routes through Leroy as orchestrator, executes across the team, and returns to Levi via Owners Inbox — with every action permanently recorded in pka.db.</p>
+      <p class="diagram-caption" style="margin-top:14px;">All work originates with the owner, routes through Leroy as orchestrator, executes across the team, and returns via Owners Inbox — with every action permanently recorded in pka.db.</p>
     </div>
   </div>
 
@@ -439,21 +1180,28 @@ flowchart TD
     <div class="diagram-block">
       <div class="diagram-label">2a</div>
       <h2>Folder Structure</h2>
-      <p class="diagram-caption">The PKA filesystem layout — each directory has a single, defined purpose and maps directly to a role or workflow stage.</p>
+      <p class="diagram-caption">The PKA filesystem layout — each directory has a single, defined purpose and maps directly to a role or workflow stage. PKA-Data lives outside the git working tree.</p>
       <div class="diagram-wrap">
         <div class="mermaid">
 flowchart LR
 
-  ROOT["📁 PKA/"]
+  DOCS["📁 ~/Documents/"]
 
-  ROOT --> TINBOX["📂 Team Inbox/\nOwner drops raw assets here"]
-  ROOT --> TCOMMS["📂 Team Comms/\nTransient brief files\nLeroy writes · team reads · file deleted on completion"]
-  ROOT --> OINBOX["📂 Owners Inbox/\nDeliverables + reference tools"]
-  ROOT --> TDIR["📂 Team/\nPersona profile files\nOne file per team member"]
+  DOCS --> ROOT["📁 PKA/\ngit-tracked"]
+  DOCS --> PKADATA["📁 PKA-Data/\n⚠ outside git repo\nnever committed"]
+
+  ROOT --> TINBOX["📂 team_inbox/\nOwner drops raw assets here\ngitignored"]
+  ROOT --> ARCHIVE["📦 archive/\nCompleted content moved here via archive.py\nteam_inbox/ gitignored · team_comms + owners_inbox tracked in git"]
+  ROOT --> TCOMMS["📂 team_comms/\nTransient brief files\nLeroy writes · team reads · file moved to archive/ on completion"]
+  ROOT --> OINBOX["📂 owners_inbox/\nDeliverables + reference tools"]
+  ROOT --> CASES["📂 case_studies/\nLearning Layer case writeups\nAAR-driven, indexed in case_studies table"]
+  ROOT --> TDIR["📂 team/\nPersona profile files\nOne file per team member"]
   ROOT --> DBFILE["🗄️ pka.db\nSQLite + FTS5 database\nPermanent operational record"]
 
   OINBOX --> VIEWER["📂 pka-viewer/\nAsset + knowledge browser"]
   OINBOX --> WORKFLOW["📂 pka-workflow/\nThis document"]
+
+  PKADATA --> PERSONALDB["🗄️ personal.db\nOwner's personal layer\nowner_journal · owner_tasks · owner_notes"]
         </div>
       </div>
     </div>
@@ -462,12 +1210,12 @@ flowchart LR
     <div class="diagram-block">
       <div class="diagram-label">2b</div>
       <h2>Brief Lifecycle</h2>
-      <p class="diagram-caption">A brief exists as a temporary markdown file only while work is in progress — the database row is the permanent record that survives after the file is deleted.</p>
+      <p class="diagram-caption">A brief exists as a temporary markdown file in <code>team_comms/</code> while work is in progress — the database row is the permanent record, with the file moved to <code>archive/team_comms/</code> on completion (via <code>archive.py</code>, tracked in git). The Learning Layer adds a parallel post-delivery branch: the Learning Designer runs an AAR with the delivering team member and authors a case writeup in <code>case_studies</code>.</p>
       <div class="diagram-wrap">
         <div class="mermaid">
 flowchart TD
 
-  START(["Levi requests work"])
+  START(["Owner requests work"])
 
   START --> LEROY_W["Leroy writes\nbrief_ref.md → Team Comms/"]
   LEROY_W --> DB_INSERT["INSERT INTO briefs\nstatus open"]
@@ -478,15 +1226,21 @@ flowchart TD
   WORK --> DELIVER["Deliverable written to\nOwners Inbox/"]
   DELIVER --> DB_DELIV["INSERT INTO deliverables\nbriefs.id FK + file_path"]
 
-  DB_DELIV --> FILE_DELETE["brief_ref.md DELETED\nfrom Team Comms/"]
-  FILE_DELETE --> DB_UPDATE["UPDATE briefs SET\nstatus complete\ncompleted_at set"]
+  DB_DELIV --> FILE_MOVE["brief_ref.md MOVED to archive/team_comms/\nvia archive.py brief <ref>"]
+  FILE_MOVE --> DB_UPDATE["UPDATE briefs SET\nstatus complete\ncompleted_at set"]
 
-  DB_UPDATE --> FEEDBACK["Levi reviews deliverable\nand provides rating"]
+  DB_UPDATE --> FEEDBACK["Owner reviews deliverable\nand provides rating"]
   FEEDBACK --> DB_FEED["INSERT INTO feedback\nrating · notes · brief_ref"]
 
   DB_FEED --> DONE(["Work cycle complete"])
 
-  FILE_DELETE -.->|"FILE IS TRANSIENT\ndeleted after use"| NOTE_FILE(["🗑️ File gone"])
+  %% Learning Layer — parallel branch from delivery
+  DB_DELIV --> AAR["Learning Designer runs AAR\n4 questions · post-delivery"]
+  AAR --> CASE_WRITE["Case writeup drafted\n~800 words, HBS-style · authored by Learning Designer"]
+  CASE_WRITE --> DB_CASE["INSERT INTO case_studies\nstatus published"]
+  DB_CASE --> LEARN_DONE(["📚 Teaching artifact preserved"])
+
+  FILE_MOVE -.->|"FILE ARCHIVED\nrecoverable in git history"| NOTE_FILE(["📦 File preserved"])
   DB_UPDATE -.->|"DB RECORD IS PERMANENT\nsurvives forever"| NOTE_DB(["🗄️ Row preserved"])
 
         </div>
@@ -497,7 +1251,7 @@ flowchart TD
     <div class="diagram-block">
       <div class="diagram-label">2c</div>
       <h2>Database Schema</h2>
-      <p class="diagram-caption">The full pka.db entity-relationship diagram — assets feed content, briefs produce deliverables which collect feedback, with journal, knowledge, and settings as standalone tables.</p>
+      <p class="diagram-caption">The full pka.db entity-relationship diagram — assets feed content, briefs produce deliverables which collect feedback and AAR-driven case studies. Journal, knowledge, backlog, and settings are standalone. Model routing tables (<code>model_providers</code>, <code>task_type_models</code>) govern per-brief model tier assignment; <code>team_members</code> and <code>feedback</code> both carry FK references to <code>model_providers</code>. Updated BRIEF-099 (2026-05-15).</p>
       <div class="diagram-wrap">
         <div class="mermaid">
 erDiagram
@@ -507,7 +1261,11 @@ erDiagram
     string filename
     string path
     string type
+    int size_bytes
+    string date_added
     string status
+    string tags
+    string notes
   }
 
   content {
@@ -521,7 +1279,11 @@ erDiagram
     int id PK
     string brief_ref
     string assigned_to
+    string created_by
+    string title
+    string body
     string status
+    string created_at
     string completed_at
   }
 
@@ -531,15 +1293,21 @@ erDiagram
     string file_path
     string created_by
     string created_at
+    int tokens_used
+    int tool_uses
+    int duration_ms
   }
 
   feedback {
     int id PK
     string brief_ref
+    int deliverable_id FK
     string team_member
     int rating
     string notes
+    string model
     string created_at
+    int ai_model_provider_id FK
   }
 
   journal {
@@ -548,6 +1316,10 @@ erDiagram
     string title
     string body
     string tags
+    string mood
+    string project
+    string created_at
+    string updated_at
   }
 
   knowledge {
@@ -557,14 +1329,142 @@ erDiagram
     string tags
   }
 
+  backlog {
+    int id PK
+    string ref
+    string title
+    string body
+    int priority
+    string status
+    string tags
+    string source
+    string created_at
+  }
+
   settings {
     string key PK
     string value
   }
 
+  case_studies {
+    int id PK
+    string case_ref UK
+    int deliverable_id FK
+    string team_member
+    string status
+    string teaching_point
+    string author
+  }
+
+  patterns {
+    int id PK
+    string pattern_ref UK
+    string slug UK
+    string title
+    string body
+    string status
+    string proposed_by
+    string approved_by
+    string validated_instances
+    string proposed_at
+    string approved_at
+    string deprecated_at
+    string updated_at
+  }
+
+  patterns_fts {
+    string title
+    string body
+  }
+
+  model_providers {
+    int id PK
+    string name
+    string provider
+    string model_id
+    string endpoint
+    string api_key_env
+    int fallback_id FK
+    int active
+    string notes
+    string created_at
+    string updated_at
+  }
+
+  task_type_models {
+    int id PK
+    string task_type
+    int model_provider_id FK
+    string description
+    int active
+    string created_at
+  }
+
+  team_members {
+    int id PK
+    string name
+    string role
+    string short_role
+    string profile_file
+    string hired_date
+    int active
+    int model_provider_id FK
+  }
+
   assets ||--o{ content : "extracted into"
   briefs ||--o{ deliverables : "produces"
   deliverables ||--o{ feedback : "rated by"
+  deliverables ||--o{ case_studies : "AAR'd into"
+  patterns ||--|| patterns_fts : "FTS indexed"
+  model_providers |o--o| model_providers : "fallback"
+  task_type_models }o--|| model_providers : "assigned tier"
+  team_members }o--o| model_providers : "default tier"
+  feedback }o--o| model_providers : "model used"
+        </div>
+      </div>
+    </div>
+
+    <!-- 2c-b — personal.db Schema -->
+    <div class="diagram-block">
+      <div class="diagram-label">2c-b</div>
+      <h2>personal.db Schema</h2>
+      <p class="diagram-caption">The owner's personal data layer — stored in ~/Documents/PKA-Data/personal.db, outside the git repo. Three standalone tables with no FK relationships to pka.db.</p>
+      <div class="diagram-wrap">
+        <div class="mermaid">
+erDiagram
+
+  owner_journal {
+    int id PK
+    string date
+    string title
+    string body
+    string tags
+    string mood
+    int private
+    string created_at
+  }
+
+  owner_tasks {
+    int id PK
+    string title
+    string body
+    string status
+    int priority
+    string due_date
+    string tags
+    int private
+    string created_at
+  }
+
+  owner_notes {
+    int id PK
+    string title
+    string body
+    string source
+    string tags
+    int private
+    string created_at
+  }
         </div>
       </div>
     </div>
@@ -573,12 +1473,12 @@ erDiagram
     <div class="diagram-block">
       <div class="diagram-label">2d</div>
       <h2>Asset → Viewer Data Flow</h2>
-      <p class="diagram-caption">The path a raw file takes from Levi dropping it in Team Inbox to appearing as a searchable, browsable asset card in the PKA viewer.</p>
+      <p class="diagram-caption">The path a raw file takes from the owner dropping it in Team Inbox to appearing as a searchable, browsable asset card in the PKA viewer.</p>
       <div class="diagram-wrap">
         <div class="mermaid">
 flowchart LR
 
-  DROP["Levi drops file\nTeam Inbox/"]
+  DROP["Owner drops file\nTeam Inbox/"]
 
   DROP --> REG["PAX registers file\nassets table\nstatus: pending"]
 
@@ -590,7 +1490,7 @@ flowchart LR
   CONTENT --> DB_READY[("pka.db\nready for query")]
   STATUS --> DB_READY
 
-  DB_READY --> SQLJS["Levi opens viewer\nsql.js loads pka.db\ninto browser memory"]
+  DB_READY --> SQLJS["Owner opens viewer\nsql.js loads pka.db\ninto browser memory"]
 
   SQLJS --> QUERY["Viewer queries:\nSELECT * FROM content\nWHERE asset_id = ?"]
 
@@ -604,6 +1504,229 @@ flowchart LR
     </div>
 
   </div><!-- /tab-engineering -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 3 — DATA
+  ════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-data" class="tab-panel">
+
+    <div class="data-header">
+      <div class="data-header-left">
+        <h2>Data</h2>
+        <p>Add, edit, and delete records across pka.db and personal.db. Connect both databases above, then select a table. Use the Save buttons at the bottom of the screen to write changes back to disk.</p>
+      </div>
+      <div class="db-status-row">
+        <div class="db-status-card" id="data-pka-status">
+          <div class="db-status-dot" id="pka-dot"></div>
+          <span class="db-status-label">pka.db</span>
+          <span class="db-status-text" id="pka-status-text">not connected</span>
+          <button class="db-status-btn" id="data-btn-connect-pka">Connect</button>
+        </div>
+        <div class="db-status-card" id="data-personal-status">
+          <div class="db-status-dot" id="personal-dot"></div>
+          <span class="db-status-label">personal.db</span>
+          <span class="db-status-text" id="personal-status-text">not connected</span>
+          <button class="db-status-btn" id="data-btn-connect-personal">Connect</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table selector -->
+    <div class="table-selector">
+      <button class="table-pill active" data-table="knowledge" data-db="pka" onclick="selectTable('knowledge','pka',this)">
+        knowledge <span class="db-badge">pka</span>
+      </button>
+      <button class="table-pill" data-table="backlog" data-db="pka" onclick="selectTable('backlog','pka',this)">
+        backlog <span class="db-badge">pka</span>
+      </button>
+      <button class="table-pill" data-table="levi_journal" data-db="personal" onclick="selectTable('levi_journal','personal',this)">
+        levi_journal <span class="db-badge">personal</span>
+      </button>
+      <button class="table-pill" data-table="levi_tasks" data-db="personal" onclick="selectTable('levi_tasks','personal',this)">
+        levi_tasks <span class="db-badge">personal</span>
+      </button>
+      <button class="table-pill" data-table="levi_notes" data-db="personal" onclick="selectTable('levi_notes','personal',this)">
+        levi_notes <span class="db-badge">personal</span>
+      </button>
+    </div>
+
+    <!-- Table panels -->
+    <div id="panel-knowledge" class="table-panel active">
+      <div class="table-panel-header">
+        <div><span style="font-size:16px;font-weight:600;color:var(--text-primary)">knowledge</span> <span class="record-count" id="count-knowledge"></span></div>
+        <button class="btn-new-record" onclick="openNewForm('knowledge')" id="new-btn-knowledge">+ New Record</button>
+      </div>
+      <div class="new-record-form" id="new-form-knowledge">
+        <h4>New knowledge entry</h4>
+        <div class="form-row"><label>Title</label><input type="text" id="nf-knowledge-title" /></div>
+        <div class="form-row"><label>Body</label><textarea id="nf-knowledge-body"></textarea></div>
+        <div class="form-row"><label>Source</label><input type="text" id="nf-knowledge-source" /></div>
+        <div class="form-row"><label>Tags (comma-separated)</label><input type="text" id="nf-knowledge-tags" /></div>
+        <div class="form-actions">
+          <button class="btn-save-record" onclick="saveNewRecord('knowledge')">Save</button>
+          <button class="btn-cancel-record" onclick="closeNewForm('knowledge')">Cancel</button>
+        </div>
+      </div>
+      <div class="records-list" id="list-knowledge"></div>
+    </div>
+
+    <div id="panel-backlog" class="table-panel">
+      <div class="table-panel-header">
+        <div><span style="font-size:16px;font-weight:600;color:var(--text-primary)">backlog</span> <span class="record-count" id="count-backlog"></span></div>
+        <button class="btn-new-record" onclick="openNewForm('backlog')" id="new-btn-backlog">+ New Record</button>
+      </div>
+      <div class="new-record-form" id="new-form-backlog">
+        <h4>New backlog item</h4>
+        <div class="form-row"><label>Ref (e.g. BACKLOG-009)</label><input type="text" id="nf-backlog-ref" /></div>
+        <div class="form-row"><label>Title</label><input type="text" id="nf-backlog-title" /></div>
+        <div class="form-row"><label>Body</label><textarea id="nf-backlog-body"></textarea></div>
+        <div class="form-row"><label>Priority (1=high, 3=low)</label>
+          <select id="nf-backlog-priority"><option value="1">1 — High</option><option value="2" selected>2 — Medium</option><option value="3">3 — Low</option></select>
+        </div>
+        <div class="form-row"><label>Status</label>
+          <select id="nf-backlog-status"><option value="idea" selected>idea</option><option value="active">active</option><option value="complete">complete</option><option value="deferred">deferred</option></select>
+        </div>
+        <div class="form-row"><label>Tags</label><input type="text" id="nf-backlog-tags" /></div>
+        <div class="form-row"><label>Source</label><input type="text" id="nf-backlog-source" /></div>
+        <div class="form-actions">
+          <button class="btn-save-record" onclick="saveNewRecord('backlog')">Save</button>
+          <button class="btn-cancel-record" onclick="closeNewForm('backlog')">Cancel</button>
+        </div>
+      </div>
+      <div class="records-list" id="list-backlog"></div>
+    </div>
+
+    <div id="panel-levi_journal" class="table-panel">
+      <div class="table-panel-header">
+        <div><span style="font-size:16px;font-weight:600;color:var(--text-primary)">levi_journal</span> <span class="record-count" id="count-levi_journal"></span></div>
+        <button class="btn-new-record" onclick="openNewForm('levi_journal')" id="new-btn-levi_journal">+ New Record</button>
+      </div>
+      <div class="new-record-form" id="new-form-levi_journal">
+        <h4>New journal entry</h4>
+        <div class="form-row"><label>Date</label><input type="date" id="nf-levi_journal-date" /></div>
+        <div class="form-row"><label>Title</label><input type="text" id="nf-levi_journal-title" /></div>
+        <div class="form-row"><label>Body</label><textarea id="nf-levi_journal-body" style="min-height:130px"></textarea></div>
+        <div class="form-row"><label>Tags</label><input type="text" id="nf-levi_journal-tags" /></div>
+        <div class="form-row"><label>Mood</label><input type="text" id="nf-levi_journal-mood" /></div>
+        <div class="form-row-check"><input type="checkbox" id="nf-levi_journal-private" /><label for="nf-levi_journal-private">Private (team cannot read)</label></div>
+        <div class="form-actions">
+          <button class="btn-save-record" onclick="saveNewRecord('levi_journal')">Save</button>
+          <button class="btn-cancel-record" onclick="closeNewForm('levi_journal')">Cancel</button>
+        </div>
+      </div>
+      <div class="records-list" id="list-levi_journal"></div>
+    </div>
+
+    <div id="panel-levi_tasks" class="table-panel">
+      <div class="table-panel-header">
+        <div><span style="font-size:16px;font-weight:600;color:var(--text-primary)">levi_tasks</span> <span class="record-count" id="count-levi_tasks"></span></div>
+        <button class="btn-new-record" onclick="openNewForm('levi_tasks')" id="new-btn-levi_tasks">+ New Record</button>
+      </div>
+      <div class="new-record-form" id="new-form-levi_tasks">
+        <h4>New task</h4>
+        <div class="form-row"><label>Title</label><input type="text" id="nf-levi_tasks-title" /></div>
+        <div class="form-row"><label>Body / Notes</label><textarea id="nf-levi_tasks-body"></textarea></div>
+        <div class="form-row"><label>Status</label>
+          <select id="nf-levi_tasks-status"><option value="open" selected>open</option><option value="in_progress">in_progress</option><option value="complete">complete</option><option value="deferred">deferred</option></select>
+        </div>
+        <div class="form-row"><label>Priority (1=high, 3=low)</label>
+          <select id="nf-levi_tasks-priority"><option value="1">1 — High</option><option value="2" selected>2 — Medium</option><option value="3">3 — Low</option></select>
+        </div>
+        <div class="form-row"><label>Due Date</label><input type="date" id="nf-levi_tasks-due_date" /></div>
+        <div class="form-row"><label>Tags</label><input type="text" id="nf-levi_tasks-tags" /></div>
+        <div class="form-row-check"><input type="checkbox" id="nf-levi_tasks-private" /><label for="nf-levi_tasks-private">Private</label></div>
+        <div class="form-actions">
+          <button class="btn-save-record" onclick="saveNewRecord('levi_tasks')">Save</button>
+          <button class="btn-cancel-record" onclick="closeNewForm('levi_tasks')">Cancel</button>
+        </div>
+      </div>
+      <div class="records-list" id="list-levi_tasks"></div>
+    </div>
+
+    <div id="panel-levi_notes" class="table-panel">
+      <div class="table-panel-header">
+        <div><span style="font-size:16px;font-weight:600;color:var(--text-primary)">levi_notes</span> <span class="record-count" id="count-levi_notes"></span></div>
+        <button class="btn-new-record" onclick="openNewForm('levi_notes')" id="new-btn-levi_notes">+ New Record</button>
+      </div>
+      <div class="new-record-form" id="new-form-levi_notes">
+        <h4>New note</h4>
+        <div class="form-row"><label>Title</label><input type="text" id="nf-levi_notes-title" /></div>
+        <div class="form-row"><label>Body</label><textarea id="nf-levi_notes-body"></textarea></div>
+        <div class="form-row"><label>Source</label><input type="text" id="nf-levi_notes-source" /></div>
+        <div class="form-row"><label>Tags</label><input type="text" id="nf-levi_notes-tags" /></div>
+        <div class="form-row-check"><input type="checkbox" id="nf-levi_notes-private" /><label for="nf-levi_notes-private">Private</label></div>
+        <div class="form-actions">
+          <button class="btn-save-record" onclick="saveNewRecord('levi_notes')">Save</button>
+          <button class="btn-cancel-record" onclick="closeNewForm('levi_notes')">Cancel</button>
+        </div>
+      </div>
+      <div class="records-list" id="list-levi_notes"></div>
+    </div>
+
+  </div><!-- /tab-data -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB 4 — SYSTEM
+  ════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-system" class="tab-panel">
+
+    <div class="system-header">
+      <div class="system-header-left">
+        <h2>System State</h2>
+        <p>Pending proposals awaiting the owner's review, recent changelog entries, and current capability status. Connect pka.db for live counts — filesystem data loads without a DB connection.</p>
+      </div>
+      <button class="btn-system-refresh" onclick="renderSystemTab()">&#8635; Refresh</button>
+    </div>
+
+    <!-- 1 — Pending Proposals -->
+    <div class="system-section">
+      <div class="system-section-label">Proposals</div>
+      <h3>Pending Review</h3>
+      <p class="system-section-caption">Files in owners_inbox/ that contain proposals for the owner to apply or approve. Presence in the inbox is the state — no additional tracking needed.</p>
+      <div class="proposal-list" id="system-proposals">
+        <div class="system-db-notice">Loading proposals…</div>
+      </div>
+    </div>
+
+    <!-- 2 — Recent Changelog -->
+    <div class="system-section">
+      <div class="system-section-label">Changelog</div>
+      <h3>Recent Releases</h3>
+      <p class="system-section-caption">Latest entries from CHANGELOG.md — in user-impact voice since v1.0.0. Click any entry to expand.</p>
+      <div class="changelog-list" id="system-changelog">
+        <div class="system-db-notice">Loading changelog…</div>
+      </div>
+    </div>
+
+    <!-- 3 — Capabilities -->
+    <div class="system-section">
+      <div class="system-section-label">Capabilities</div>
+      <h3>Current State</h3>
+      <p class="system-section-caption">What the system can do right now. Connect pka.db for DB-sourced rows; filesystem rows load without a connection.</p>
+      <div class="cap-table-wrap">
+        <table class="capabilities-table">
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th>Status</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody id="system-capabilities">
+            <tr><td colspan="3" class="system-db-notice" style="text-align:center">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /tab-system -->
+
+  <!-- ─── SAVE BAR ──────────────────────────────────────────────────── -->
+  <div class="save-bar" id="save-bar">
+    <span class="save-bar-msg" id="save-bar-msg"></span>
+    <button class="btn-save-db" id="btn-save-pka" onclick="saveDb('pka')" style="display:none">Save pka.db</button>
+    <button class="btn-save-db" id="btn-save-personal" onclick="saveDb('personal')" style="display:none">Save personal.db</button>
+  </div>
 
   <!-- MERMAID CDN -->
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
@@ -625,13 +1748,11 @@ flowchart LR
     });
 
     function switchTab(name, btn) {
-      // Deactivate all
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-      // Activate selected
       document.getElementById('tab-' + name).classList.add('active');
       btn.classList.add('active');
+      if (name === 'system') renderSystemTab();
     }
 
     // ─── SQL.JS CONSTANTS ────────────────────────────────────────────────────
@@ -642,7 +1763,14 @@ flowchart LR
     // ─── STATE ───────────────────────────────────────────────────────────────
 
     const state = {
-      db: null
+      db: null,
+      personalDb: null,
+      pkaFileHandle: null,
+      personalFileHandle: null,
+      pkaUnsaved: false,
+      personalUnsaved: false,
+      activeTable: 'knowledge',
+      activeDbKey: 'pka',
     };
 
     // ─── SQL.JS LOADER ───────────────────────────────────────────────────────
@@ -662,8 +1790,10 @@ flowchart LR
       });
     }
 
-    function queryToRows(sql, params = []) {
-      const result = state.db.exec(sql, params);
+    function queryToRows(sql, params = [], db = null) {
+      const target = db || state.db;
+      if (!target) return [];
+      const result = target.exec(sql, params);
       if (!result.length) return [];
       const { columns, values } = result[0];
       return values.map(row => {
@@ -680,29 +1810,24 @@ flowchart LR
         `SELECT name, short_role FROM team_members WHERE active = 1`
       );
 
-      // Generate MEMBER_ID: uppercase, spaces → underscores
       const membersWithId = members.map(m => ({
         id: m.name.toUpperCase().replace(/\s+/g, '_'),
         name: m.name,
         short_role: m.short_role
       }));
 
-      // Build dynamic TEAM subgraph nodes
       const teamNodes = membersWithId
         .map(m => `    ${m.id}["${m.name}\\n${m.short_role}"]`)
         .join('\n');
 
-      // Build edges: TCOMMS → member
       const edgesFromComms = membersWithId
         .map(m => `  TCOMMS -->|"reads brief"| ${m.id}`)
         .join('\n');
 
-      // Build edges: member → OINBOX
       const edgesToOinbox = membersWithId
         .map(m => `  ${m.id} -->|"delivers to"| OINBOX`)
         .join('\n');
 
-      // Build DB write edges (for members that insert rows — all active members)
       const edgesDbWrites = membersWithId
         .filter(m => m.id !== 'LEROY')
         .map(m => `  ${m.id} -->|"Inserts rows"| DB`)
@@ -712,8 +1837,8 @@ flowchart LR
 
   subgraph OWN["Owner Layer"]
     direction TB
-    LEVI["👤 Levi\\nOwner — source of all intent"]
-    LEVI_GATE{"Levi Approval\\nGate"}
+    LEVI["👤 Owner\\nSource of all intent"]
+    LEVI_GATE{"Owner Approval\\nGate"}
   end
 
   subgraph ORCH["Orchestration Layer"]
@@ -736,7 +1861,7 @@ ${teamNodes}
 
   subgraph FEED["Feedback Loop"]
     direction TB
-    RATING["Levi rates deliverable\\n1–5 stars"]
+    RATING["Owner rates deliverable\\n1–5 stars"]
     FTABLE["feedback table\\nrating + notes stored"]
     SAMREV["Sam reviews low ratings"]
     PUPDATE["Persona updated\\nif needed"]
@@ -750,7 +1875,7 @@ ${teamNodes}
   LEROY -->|"1 · Task: writes brief_ref.md"| TCOMMS
 ${edgesFromComms}
 ${edgesToOinbox}
-  OINBOX -->|"Levi reviews"| RATING
+  OINBOX -->|"Owner reviews"| RATING
 
   %% ── PATH 2: Hiring Flow ────────────────────────────────────────────
   LEROY -->|"2 · Gap identified"| SAM
@@ -777,52 +1902,432 @@ ${edgesDbWrites}
 
     // ─── CONNECT DB ──────────────────────────────────────────────────────────
 
-    async function connectDb(arrayBuffer) {
+    async function connectDb(arrayBuffer, isPersonal, fileHandle) {
       try {
         if (!window._SQL) {
           window._SQL = await loadSqlJs();
         }
         const SQL = window._SQL;
-        if (state.db) { state.db.close(); state.db = null; }
-        state.db = new SQL.Database(new Uint8Array(arrayBuffer));
-
-        // Hide static fallback banner
-        const banner = document.getElementById('static-banner');
-        if (banner) banner.style.display = 'none';
-
-        // Show refresh button
-        const btnRefresh = document.getElementById('btn-refresh-db');
-        btnRefresh.style.display = 'inline-flex';
-
-        await buildWorkflowMermaid();
+        if (isPersonal) {
+          if (state.personalDb) { state.personalDb.close(); state.personalDb = null; }
+          state.personalDb = new SQL.Database(new Uint8Array(arrayBuffer));
+          state.personalFileHandle = fileHandle || null;
+          state.personalUnsaved = false;
+          // Update UI
+          document.getElementById('personal-dot').classList.add('connected');
+          document.getElementById('personal-status-text').textContent = 'connected';
+          document.getElementById('btn-connect-personal').classList.add('connected');
+          document.getElementById('btn-connect-personal').textContent = 'personal.db ✓';
+          document.getElementById('data-btn-connect-personal').style.display = 'none';
+          // Render active table if it's a personal table
+          if (state.activeDbKey === 'personal') renderTable(state.activeTable);
+        } else {
+          if (state.db) { state.db.close(); state.db = null; }
+          state.db = new SQL.Database(new Uint8Array(arrayBuffer));
+          state.pkaFileHandle = fileHandle || null;
+          state.pkaUnsaved = false;
+          // Hide static banner
+          const banner = document.getElementById('static-banner');
+          if (banner) banner.style.display = 'none';
+          // Show refresh button
+          document.getElementById('btn-refresh-db').style.display = 'inline-flex';
+          // Update UI
+          document.getElementById('pka-dot').classList.add('connected');
+          document.getElementById('pka-status-text').textContent = 'connected';
+          document.getElementById('btn-connect-db').classList.add('connected');
+          document.getElementById('btn-connect-db').textContent = 'pka.db ✓';
+          document.getElementById('data-btn-connect-pka').style.display = 'none';
+          await buildWorkflowMermaid();
+          // Re-render System tab capabilities with live DB data
+          renderCapabilities();
+          // Render active table if it's a pka table
+          if (state.activeDbKey === 'pka') renderTable(state.activeTable);
+        }
       } catch (e) {
         alert('Could not load database: ' + e.message);
       }
     }
 
-    async function openDbFile() {
+    async function openDbFile(isPersonal) {
       try {
+        let fileHandle = null;
+        let buf;
         if ('showOpenFilePicker' in window) {
-          const [fileHandle] = await window.showOpenFilePicker({
+          const [fh] = await window.showOpenFilePicker({
             types: [{ description: 'SQLite Database', accept: { 'application/octet-stream': ['.db'] } }],
             multiple: false,
           });
-          const file = await fileHandle.getFile();
-          const buf = await file.arrayBuffer();
-          await connectDb(buf);
+          fileHandle = fh;
+          const file = await fh.getFile();
+          buf = await file.arrayBuffer();
         } else {
-          document.getElementById('fallback-db-input').click();
+          // fallback: trigger file input
+          const input = document.getElementById(isPersonal ? 'fallback-personal-input' : 'fallback-db-input');
+          input.onchange = async (e) => {
+            const f = e.target.files[0];
+            if (!f) return;
+            const b = await f.arrayBuffer();
+            await connectDb(b, isPersonal, null);
+            input.value = '';
+          };
+          input.click();
+          return;
+        }
+        await connectDb(buf, isPersonal, fileHandle);
+      } catch (e) {
+        if (e.name !== 'AbortError') alert('Could not open file: ' + e.message);
+      }
+    }
+
+    // ─── SAVE DB TO DISK ─────────────────────────────────────────────────────
+
+    async function saveDb(which) {
+      const db = which === 'pka' ? state.db : state.personalDb;
+      const fileHandle = which === 'pka' ? state.pkaFileHandle : state.personalFileHandle;
+      if (!db) return;
+
+      const data = db.export(); // Uint8Array
+
+      try {
+        if (fileHandle) {
+          // Try to write back to the original file
+          let perm = await fileHandle.queryPermission({ mode: 'readwrite' });
+          if (perm !== 'granted') {
+            perm = await fileHandle.requestPermission({ mode: 'readwrite' });
+          }
+          if (perm === 'granted') {
+            const writable = await fileHandle.createWritable();
+            await writable.write(data);
+            await writable.close();
+            markSaved(which);
+            return;
+          }
+        }
+        // Fallback: File System Access API save picker
+        if ('showSaveFilePicker' in window) {
+          const fh = await window.showSaveFilePicker({
+            suggestedName: which === 'pka' ? 'pka.db' : 'personal.db',
+            types: [{ description: 'SQLite Database', accept: { 'application/octet-stream': ['.db'] } }],
+          });
+          const writable = await fh.createWritable();
+          await writable.write(data);
+          await writable.close();
+          if (which === 'pka') state.pkaFileHandle = fh;
+          else state.personalFileHandle = fh;
+          markSaved(which);
+        } else {
+          // Last resort: download
+          const blob = new Blob([data], { type: 'application/octet-stream' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = which === 'pka' ? 'pka.db' : 'personal.db';
+          a.click();
+          URL.revokeObjectURL(url);
+          markSaved(which);
         }
       } catch (e) {
-        if (e.name !== 'AbortError') {
-          alert('Could not open file: ' + e.message);
-        }
+        if (e.name !== 'AbortError') alert('Save failed: ' + e.message);
       }
+    }
+
+    function markUnsaved(which) {
+      if (which === 'pka') state.pkaUnsaved = true;
+      else state.personalUnsaved = true;
+      updateSaveBar();
+    }
+
+    function markSaved(which) {
+      if (which === 'pka') state.pkaUnsaved = false;
+      else state.personalUnsaved = false;
+      updateSaveBar();
+    }
+
+    function updateSaveBar() {
+      const bar = document.getElementById('save-bar');
+      const msg = document.getElementById('save-bar-msg');
+      const btnPka = document.getElementById('btn-save-pka');
+      const btnPersonal = document.getElementById('btn-save-personal');
+
+      if (!state.pkaUnsaved && !state.personalUnsaved) {
+        bar.classList.remove('visible');
+        return;
+      }
+
+      bar.classList.add('visible');
+      const parts = [];
+      if (state.pkaUnsaved) parts.push('<strong>pka.db</strong>');
+      if (state.personalUnsaved) parts.push('<strong>personal.db</strong>');
+      msg.innerHTML = 'Unsaved changes in ' + parts.join(' and ') + ' — write back to disk:';
+
+      btnPka.style.display = state.pkaUnsaved ? 'inline-flex' : 'none';
+      btnPersonal.style.display = state.personalUnsaved ? 'inline-flex' : 'none';
+    }
+
+    // ─── TABLE SELECTION ─────────────────────────────────────────────────────
+
+    const TABLE_DB_MAP = {
+      knowledge: 'pka', backlog: 'pka',
+      levi_journal: 'personal', levi_tasks: 'personal', levi_notes: 'personal'
+    };
+
+    function selectTable(tableName, dbKey, btn) {
+      document.querySelectorAll('.table-pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.table-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + tableName).classList.add('active');
+      state.activeTable = tableName;
+      state.activeDbKey = dbKey;
+      renderTable(tableName);
+    }
+
+    // ─── RENDER TABLE ─────────────────────────────────────────────────────────
+
+    function getDbForTable(tableName) {
+      return TABLE_DB_MAP[tableName] === 'personal' ? state.personalDb : state.db;
+    }
+
+    function renderTable(tableName) {
+      const db = getDbForTable(tableName);
+      const list = document.getElementById('list-' + tableName);
+      const countEl = document.getElementById('count-' + tableName);
+      const newBtn = document.getElementById('new-btn-' + tableName);
+
+      if (!db) {
+        list.innerHTML = '<div class="db-required-notice">Connect ' +
+          (TABLE_DB_MAP[tableName] === 'personal' ? 'personal.db' : 'pka.db') +
+          ' above to view and edit records.</div>';
+        if (countEl) countEl.textContent = '';
+        if (newBtn) newBtn.disabled = true;
+        return;
+      }
+
+      if (newBtn) newBtn.disabled = false;
+      const rows = queryToRows(`SELECT * FROM ${tableName} ORDER BY id DESC`, [], db);
+      if (countEl) countEl.textContent = `(${rows.length} records)`;
+
+      if (!rows.length) {
+        list.innerHTML = '<div class="db-required-notice" style="text-align:left;padding:16px">No records yet. Use + New Record to add one.</div>';
+        return;
+      }
+
+      list.innerHTML = rows.map(row => buildRecordCard(tableName, row)).join('');
+    }
+
+    function getRecordTitle(tableName, row) {
+      if (row.title) return row.title;
+      if (row.ref) return row.ref;
+      return `#${row.id}`;
+    }
+
+    function getRecordMeta(tableName, row) {
+      if (tableName === 'backlog') return `${row.status || ''} · p${row.priority || ''}`;
+      if (tableName === 'levi_journal') return row.date || '';
+      if (tableName === 'levi_tasks') return row.status || '';
+      if (row.tags) return row.tags;
+      return '';
+    }
+
+    function buildRecordCard(tableName, row) {
+      const title = escHtml(getRecordTitle(tableName, row));
+      const meta = escHtml(getRecordMeta(tableName, row));
+      return `
+        <div class="record-card" id="card-${tableName}-${row.id}">
+          <div class="record-card-header">
+            <span class="record-id">#${row.id}</span>
+            <span class="record-title">${title}</span>
+            <span class="record-meta">${meta}</span>
+            <div class="record-actions">
+              <button class="btn-edit" onclick="openEditForm('${tableName}', ${row.id})">Edit</button>
+              <button class="btn-delete" onclick="deleteRecord('${tableName}', ${row.id})">Delete</button>
+            </div>
+          </div>
+          <div class="record-form" id="edit-form-${tableName}-${row.id}">
+            ${buildEditFormFields(tableName, row)}
+            <div class="form-actions">
+              <button class="btn-save-record" onclick="saveEditRecord('${tableName}', ${row.id})">Save</button>
+              <button class="btn-cancel-record" onclick="closeEditForm('${tableName}', ${row.id})">Cancel</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function buildEditFormFields(tableName, row) {
+      const v = (val) => escAttr(val != null ? String(val) : '');
+      const t = (val) => escHtml(val != null ? String(val) : '');
+      if (tableName === 'knowledge') return `
+        <div class="form-row"><label>Title</label><input type="text" id="ef-${tableName}-${row.id}-title" value="${v(row.title)}" /></div>
+        <div class="form-row"><label>Body</label><textarea id="ef-${tableName}-${row.id}-body">${t(row.body)}</textarea></div>
+        <div class="form-row"><label>Source</label><input type="text" id="ef-${tableName}-${row.id}-source" value="${v(row.source)}" /></div>
+        <div class="form-row"><label>Tags</label><input type="text" id="ef-${tableName}-${row.id}-tags" value="${v(row.tags)}" /></div>`;
+      if (tableName === 'backlog') return `
+        <div class="form-row"><label>Ref</label><input type="text" id="ef-${tableName}-${row.id}-ref" value="${v(row.ref)}" /></div>
+        <div class="form-row"><label>Title</label><input type="text" id="ef-${tableName}-${row.id}-title" value="${v(row.title)}" /></div>
+        <div class="form-row"><label>Body</label><textarea id="ef-${tableName}-${row.id}-body">${t(row.body)}</textarea></div>
+        <div class="form-row"><label>Priority</label>
+          <select id="ef-${tableName}-${row.id}-priority">
+            <option value="1"${row.priority==1?' selected':''}>1 — High</option>
+            <option value="2"${row.priority==2?' selected':''}>2 — Medium</option>
+            <option value="3"${row.priority==3?' selected':''}>3 — Low</option>
+          </select></div>
+        <div class="form-row"><label>Status</label>
+          <select id="ef-${tableName}-${row.id}-status">
+            ${['idea','active','complete','deferred'].map(s=>`<option value="${s}"${row.status===s?' selected':''}>${s}</option>`).join('')}
+          </select></div>
+        <div class="form-row"><label>Tags</label><input type="text" id="ef-${tableName}-${row.id}-tags" value="${v(row.tags)}" /></div>
+        <div class="form-row"><label>Source</label><input type="text" id="ef-${tableName}-${row.id}-source" value="${v(row.source)}" /></div>`;
+      if (tableName === 'levi_journal') return `
+        <div class="form-row"><label>Date</label><input type="date" id="ef-${tableName}-${row.id}-date" value="${v(row.date)}" /></div>
+        <div class="form-row"><label>Title</label><input type="text" id="ef-${tableName}-${row.id}-title" value="${v(row.title)}" /></div>
+        <div class="form-row"><label>Body</label><textarea id="ef-${tableName}-${row.id}-body" style="min-height:130px">${t(row.body)}</textarea></div>
+        <div class="form-row"><label>Tags</label><input type="text" id="ef-${tableName}-${row.id}-tags" value="${v(row.tags)}" /></div>
+        <div class="form-row"><label>Mood</label><input type="text" id="ef-${tableName}-${row.id}-mood" value="${v(row.mood)}" /></div>
+        <div class="form-row-check"><input type="checkbox" id="ef-${tableName}-${row.id}-private" ${row.private?'checked':''}/><label for="ef-${tableName}-${row.id}-private">Private</label></div>`;
+      if (tableName === 'levi_tasks') return `
+        <div class="form-row"><label>Title</label><input type="text" id="ef-${tableName}-${row.id}-title" value="${v(row.title)}" /></div>
+        <div class="form-row"><label>Body</label><textarea id="ef-${tableName}-${row.id}-body">${t(row.body)}</textarea></div>
+        <div class="form-row"><label>Status</label>
+          <select id="ef-${tableName}-${row.id}-status">
+            ${['open','in_progress','complete','deferred'].map(s=>`<option value="${s}"${row.status===s?' selected':''}>${s}</option>`).join('')}
+          </select></div>
+        <div class="form-row"><label>Priority</label>
+          <select id="ef-${tableName}-${row.id}-priority">
+            <option value="1"${row.priority==1?' selected':''}>1 — High</option>
+            <option value="2"${row.priority==2?' selected':''}>2 — Medium</option>
+            <option value="3"${row.priority==3?' selected':''}>3 — Low</option>
+          </select></div>
+        <div class="form-row"><label>Due Date</label><input type="date" id="ef-${tableName}-${row.id}-due_date" value="${v(row.due_date)}" /></div>
+        <div class="form-row"><label>Tags</label><input type="text" id="ef-${tableName}-${row.id}-tags" value="${v(row.tags)}" /></div>
+        <div class="form-row-check"><input type="checkbox" id="ef-${tableName}-${row.id}-private" ${row.private?'checked':''}/><label for="ef-${tableName}-${row.id}-private">Private</label></div>`;
+      if (tableName === 'levi_notes') return `
+        <div class="form-row"><label>Title</label><input type="text" id="ef-${tableName}-${row.id}-title" value="${v(row.title)}" /></div>
+        <div class="form-row"><label>Body</label><textarea id="ef-${tableName}-${row.id}-body">${t(row.body)}</textarea></div>
+        <div class="form-row"><label>Source</label><input type="text" id="ef-${tableName}-${row.id}-source" value="${v(row.source)}" /></div>
+        <div class="form-row"><label>Tags</label><input type="text" id="ef-${tableName}-${row.id}-tags" value="${v(row.tags)}" /></div>
+        <div class="form-row-check"><input type="checkbox" id="ef-${tableName}-${row.id}-private" ${row.private?'checked':''}/><label for="ef-${tableName}-${row.id}-private">Private</label></div>`;
+      return '';
+    }
+
+    // ─── CRUD OPERATIONS ──────────────────────────────────────────────────────
+
+    function openEditForm(tableName, id) {
+      const form = document.getElementById(`edit-form-${tableName}-${id}`);
+      if (form) form.classList.toggle('open');
+    }
+
+    function closeEditForm(tableName, id) {
+      const form = document.getElementById(`edit-form-${tableName}-${id}`);
+      if (form) form.classList.remove('open');
+    }
+
+    function fv(id) {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      if (el.type === 'checkbox') return el.checked ? 1 : 0;
+      return el.value;
+    }
+
+    function saveEditRecord(tableName, id) {
+      const db = getDbForTable(tableName);
+      if (!db) return;
+      const dbKey = TABLE_DB_MAP[tableName];
+      const now = new Date().toISOString();
+      const p = (field) => fv(`ef-${tableName}-${id}-${field}`);
+
+      try {
+        if (tableName === 'knowledge') {
+          db.run(`UPDATE knowledge SET title=?, body=?, source=?, tags=?, updated_at=? WHERE id=?`,
+            [p('title'), p('body'), p('source'), p('tags'), now, id]);
+        } else if (tableName === 'backlog') {
+          db.run(`UPDATE backlog SET ref=?, title=?, body=?, priority=?, status=?, tags=?, source=?, updated_at=? WHERE id=?`,
+            [p('ref'), p('title'), p('body'), p('priority'), p('status'), p('tags'), p('source'), now, id]);
+        } else if (tableName === 'levi_journal') {
+          db.run(`UPDATE levi_journal SET date=?, title=?, body=?, tags=?, mood=?, private=?, updated_at=? WHERE id=?`,
+            [p('date'), p('title'), p('body'), p('tags'), p('mood'), p('private'), now, id]);
+        } else if (tableName === 'levi_tasks') {
+          db.run(`UPDATE levi_tasks SET title=?, body=?, status=?, priority=?, due_date=?, tags=?, private=?, updated_at=? WHERE id=?`,
+            [p('title'), p('body'), p('status'), p('priority'), p('due_date'), p('tags'), p('private'), now, id]);
+        } else if (tableName === 'levi_notes') {
+          db.run(`UPDATE levi_notes SET title=?, body=?, source=?, tags=?, private=?, updated_at=? WHERE id=?`,
+            [p('title'), p('body'), p('source'), p('tags'), p('private'), now, id]);
+        }
+        markUnsaved(dbKey);
+        renderTable(tableName);
+      } catch(e) {
+        alert('Save failed: ' + e.message);
+      }
+    }
+
+    function deleteRecord(tableName, id) {
+      const db = getDbForTable(tableName);
+      if (!db) return;
+      const dbKey = TABLE_DB_MAP[tableName];
+      const rows = queryToRows(`SELECT * FROM ${tableName} WHERE id=?`, [id], db);
+      const title = rows.length ? getRecordTitle(tableName, rows[0]) : `#${id}`;
+      if (!confirm(`Delete "${title}"?\n\nThis cannot be undone.`)) return;
+      db.run(`DELETE FROM ${tableName} WHERE id=?`, [id]);
+      markUnsaved(dbKey);
+      renderTable(tableName);
+    }
+
+    function openNewForm(tableName) {
+      const form = document.getElementById('new-form-' + tableName);
+      if (form) form.classList.toggle('open');
+    }
+
+    function closeNewForm(tableName) {
+      const form = document.getElementById('new-form-' + tableName);
+      if (form) form.classList.remove('open');
+    }
+
+    function saveNewRecord(tableName) {
+      const db = getDbForTable(tableName);
+      if (!db) { alert('Database not connected.'); return; }
+      const dbKey = TABLE_DB_MAP[tableName];
+      const now = new Date().toISOString();
+      const p = (field) => fv(`nf-${tableName}-${field}`);
+
+      try {
+        if (tableName === 'knowledge') {
+          db.run(`INSERT INTO knowledge (title, body, source, tags, created_at, updated_at) VALUES (?,?,?,?,?,?)`,
+            [p('title'), p('body'), p('source'), p('tags'), now, now]);
+        } else if (tableName === 'backlog') {
+          db.run(`INSERT INTO backlog (ref, title, body, priority, status, tags, source, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?)`,
+            [p('ref'), p('title'), p('body'), p('priority'), p('status'), p('tags'), p('source'), now, now]);
+        } else if (tableName === 'levi_journal') {
+          db.run(`INSERT INTO levi_journal (date, title, body, tags, mood, private, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?)`,
+            [p('date'), p('title'), p('body'), p('tags'), p('mood'), p('private'), now, now]);
+        } else if (tableName === 'levi_tasks') {
+          db.run(`INSERT INTO levi_tasks (title, body, status, priority, due_date, tags, private, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?)`,
+            [p('title'), p('body'), p('status'), p('priority'), p('due_date'), p('tags'), p('private'), now, now]);
+        } else if (tableName === 'levi_notes') {
+          db.run(`INSERT INTO levi_notes (title, body, source, tags, private, created_at, updated_at) VALUES (?,?,?,?,?,?,?)`,
+            [p('title'), p('body'), p('source'), p('tags'), p('private'), now, now]);
+        }
+        markUnsaved(dbKey);
+        closeNewForm(tableName);
+        renderTable(tableName);
+      } catch(e) {
+        alert('Save failed: ' + e.message);
+      }
+    }
+
+    // ─── HELPERS ─────────────────────────────────────────────────────────────
+
+    function escHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function escAttr(str) {
+      return String(str).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     }
 
     // ─── EVENT LISTENERS ─────────────────────────────────────────────────────
 
-    document.getElementById('btn-connect-db').addEventListener('click', openDbFile);
+    document.getElementById('btn-connect-db').addEventListener('click', () => openDbFile(false));
+    document.getElementById('btn-connect-personal').addEventListener('click', () => openDbFile(true));
+    document.getElementById('data-btn-connect-pka').addEventListener('click', () => openDbFile(false));
+    document.getElementById('data-btn-connect-personal').addEventListener('click', () => openDbFile(true));
 
     document.getElementById('btn-refresh-db').addEventListener('click', function () {
       if (state.db) buildWorkflowMermaid();
@@ -832,13 +2337,274 @@ ${edgesDbWrites}
       const file = e.target.files[0];
       if (!file) return;
       const buf = await file.arrayBuffer();
-      await connectDb(buf);
+      await connectDb(buf, false, null);
       e.target.value = '';
     });
 
-    // ─── BROWSER COMPAT ──────────────────────────────────────────────────────
+    document.getElementById('fallback-personal-input').addEventListener('change', async function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const buf = await file.arrayBuffer();
+      await connectDb(buf, true, null);
+      e.target.value = '';
+    });
 
-    // No UI to show/hide for fallback here — we trigger it programmatically from openDbFile()
+    // ─── SYSTEM TAB ──────────────────────────────────────────────────────────
+
+    // Proposal files: filename → { title, summary, date }
+    // Hardcoded based on current owners_inbox contents — refreshed by re-render.
+    // In a file-picker environment we can't enumerate the filesystem directly,
+    // so we embed the known Phase-1 proposals as static data and flag that
+    // a server-backed listing would make this dynamic.
+    // Proposals from owners_inbox/ that are pending owner review.
+    // This array is empty on a fresh install — add entries here as your team
+    // produces proposals (e.g., persona hire proposals, system change proposals).
+    // Format: { filename, title, date, summary, status }
+    const KNOWN_PROPOSALS = [
+      // Example entry (delete this when you add real proposals):
+      // {
+      //   filename: 'example_proposal_2026-01-01.md',
+      //   title: 'Example Proposal Title',
+      //   date: '2026-01-01',
+      //   summary: 'Brief description of what this proposal covers and what the owner needs to decide.',
+      //   status: 'Awaiting owner review'
+      // }
+    ];
+
+    function renderProposals() {
+      const container = document.getElementById('system-proposals');
+      if (!KNOWN_PROPOSALS.length) {
+        container.innerHTML = '<div class="system-db-notice">No pending proposals found in owners_inbox/.</div>';
+        return;
+      }
+      container.innerHTML = KNOWN_PROPOSALS.map((p, i) => `
+        <div class="proposal-card" id="proposal-card-${i}">
+          <div class="proposal-card-header" onclick="toggleProposal(${i})">
+            <span class="proposal-status-badge">${escHtml(p.status)}</span>
+            <span class="proposal-title">${escHtml(p.title)}</span>
+            <span class="proposal-date">${escHtml(p.date)}</span>
+            <span class="proposal-expand-icon">&#9656;</span>
+          </div>
+          <div class="proposal-body">
+            ${escHtml(p.summary)}
+            <div style="margin-top:8px;font-family:var(--font-mono);font-size:11px;color:var(--text-tertiary)">${escHtml(p.filename)}</div>
+          </div>
+        </div>`).join('');
+    }
+
+    function toggleProposal(i) {
+      const card = document.getElementById('proposal-card-' + i);
+      if (card) card.classList.toggle('open');
+    }
+
+    // CHANGELOG parser — reads the raw text of CHANGELOG.md embedded below.
+    // The CHANGELOG content is injected as a JS string at build time by the
+    // renderSystemTab function. Since we can't fetch local files from a
+    // file:// origin without a server, we embed a static snapshot of the
+    // current CHANGELOG and note that this updates on next system session open.
+    // CHANGELOG_CONTENT: static snapshot of CHANGELOG.md embedded here so the
+    // System tab can display recent entries without a server. Update this string
+    // each session close (or let the /close-session command prompt you to do it).
+    const CHANGELOG_CONTENT = `## [1.0.0] — template-initial
+
+### Added
+
+**You start with a two-person team.** Sam (HR Director) and PAX (Senior Researcher) are live from day one. To grow the team, tell Leroy what you need — Sam and PAX will research the role and present a hire proposal for your approval before anyone goes active.
+
+**Every task is tracked in a structured database.** pka.db comes with 13 tables: briefs, deliverables, feedback, journal, knowledge, backlog, case studies, patterns, model providers, and more. FTS5 full-text search is enabled on all major text tables.
+
+**A browser-based viewer lets you read and search your DB without any server.** Open owners_inbox/pka-viewer/index.html in Chrome. No server, no install.
+
+**A workflow diagram shows your team and how work flows.** This file. Connect pka.db to see the live team layer. The Engineering tab has four structural diagrams. The System tab shows proposals, changelog entries, and capability status.
+
+**Session open and close are structured routines.** Session Open surfaces naming violations, open backlog, and net-new patterns. Session Close writes a summary, timestamps the DB, and pushes to GitHub — so the next session starts with full context.
+
+**A patterns layer lets the team re-use proven shapes of work.** The patterns/ folder and patterns DB table track validated operational templates.
+
+**A Learning Layer turns every delivery into a teaching artifact.** After every non-trivial delivery, the Learning Designer runs an After Action Review and produces an HBS-style case writeup. Writeups live in case_studies/ and are indexed in pka.db.
+
+**Model routing is built in from the start.** Leroy routes work to Opus 4.7 / Sonnet 4.6 / Haiku 4.5 based on the character of the task. Multi-provider routing is architecturally ready; it activates with a single settings flip.
+
+**Personal data stays private by design.** personal.db lives outside the repo at ~/Documents/PKA-Data/personal.db, never committed, never mixed with operational data. The boundary is architectural, not disciplinary.`; CHANGELOG and VERSION in PKA root.)`;
+
+    function parseChangelog(raw) {
+      // Split on version headers: ## [x.y.z] — date
+      const versionRe = /^## \[([^\]]+)\]\s*[—–-]+\s*(.+)$/m;
+      const sections = raw.split(/(?=^## \[)/m).filter(s => s.trim());
+      return sections.slice(0, 5).map(section => {
+        const headerMatch = section.match(/^## \[([^\]]+)\]\s*[—–-]+\s*(.+)/);
+        if (!headerMatch) return null;
+        const version = headerMatch[1];
+        const date = headerMatch[2].trim();
+        const body = section.replace(/^## \[[^\]]+\][^\n]*\n/, '').trim();
+        // Preview: first non-empty, non-header line
+        const previewLine = body.split('\n').find(l => l.trim() && !l.startsWith('#'));
+        const preview = (previewLine || '').replace(/\*\*/g, '').trim().slice(0, 80);
+        return { version, date, body, preview };
+      }).filter(Boolean);
+    }
+
+    function renderChangelog() {
+      const container = document.getElementById('system-changelog');
+      const entries = parseChangelog(CHANGELOG_CONTENT);
+      if (!entries.length) {
+        container.innerHTML = '<div class="system-db-notice">No changelog entries found.</div>';
+        return;
+      }
+      container.innerHTML = entries.map((e, i) => `
+        <div class="changelog-entry" id="changelog-entry-${i}">
+          <div class="changelog-entry-header" onclick="toggleChangelog(${i})">
+            <span class="changelog-version">[${escHtml(e.version)}]</span>
+            <span class="changelog-date">${escHtml(e.date)}</span>
+            <span class="changelog-preview">${escHtml(e.preview)}…</span>
+            <span class="changelog-expand-icon">&#9656;</span>
+          </div>
+          <div class="changelog-body">${formatChangelogBody(e.body)}</div>
+        </div>`).join('');
+    }
+
+    function formatChangelogBody(raw) {
+      // Convert bold **text** and backtick `code` to HTML; preserve paragraphs
+      let html = escHtml(raw);
+      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/`([^`]+)`/g, '<code style="font-family:var(--font-mono);font-size:11px;background:var(--bg-input);padding:1px 4px;border-radius:3px;">$1</code>');
+      // Paragraphs: double newline → <p>
+      html = html.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,' ').trim()}</p>`).join('');
+      // Section headers (### Added etc.)
+      html = html.replace(/<p>###\s+([^<]+)<\/p>/g, '<p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--accent);margin-top:12px;margin-bottom:4px;">$1</p>');
+      return html;
+    }
+
+    function toggleChangelog(i) {
+      const el = document.getElementById('changelog-entry-' + i);
+      if (el) el.classList.toggle('open');
+    }
+
+    function renderCapabilities() {
+      const tbody = document.getElementById('system-capabilities');
+
+      // Filesystem-based rows (static — updated by renderSystemTab on refresh
+      // once db is connected; filesystem rows are always available)
+      const agentCount = 2;   // .claude/agents/*.md — sam, pax (founding team; grows as you hire)
+      const teamSize   = 2;   // matches team_members count on fresh install
+      const commandCount = 1; // .claude/commands/close-session.md
+
+      // DB-based rows
+      let patternValidated = '?';
+      let patternProposed  = '?';
+      let teamRosterCount  = '?';
+      let backlogP1Active  = '?';
+      let backlogP1Idea    = '?';
+      let backlogP2Idea    = '?';
+      let backlogP3Idea    = '?';
+      let modelRouting     = 'Disabled (proposal pending)';
+
+      if (state.db) {
+        try {
+          const patRows = queryToRows(`SELECT status, COUNT(*) as cnt FROM patterns GROUP BY status`);
+          patRows.forEach(r => {
+            if (r.status === 'validated') patternValidated = r.cnt;
+            if (r.status === 'proposed')  patternProposed  = r.cnt;
+          });
+          if (patternValidated === '?') patternValidated = 0;
+          if (patternProposed  === '?') patternProposed  = 0;
+
+          const tmRows = queryToRows(`SELECT COUNT(*) as cnt FROM team_members WHERE active = 1`);
+          if (tmRows.length) teamRosterCount = tmRows[0].cnt;
+
+          const blRows = queryToRows(`SELECT priority, status, COUNT(*) as cnt FROM backlog WHERE status IN ('idea','active') GROUP BY priority, status`);
+          let p1a=0, p1i=0, p2i=0, p3i=0;
+          blRows.forEach(r => {
+            if (r.priority===1 && r.status==='active') p1a = r.cnt;
+            if (r.priority===1 && r.status==='idea')   p1i = r.cnt;
+            if (r.priority===2 && r.status==='idea')   p2i = r.cnt;
+            if (r.priority===3 && r.status==='idea')   p3i = r.cnt;
+          });
+          backlogP1Active = p1a;
+          backlogP1Idea   = p1i;
+          backlogP2Idea   = p2i;
+          backlogP3Idea   = p3i;
+
+          // Check multi_model_enabled in settings
+          const mrRows = queryToRows(`SELECT value FROM settings WHERE key = 'multi_model_enabled'`);
+          if (mrRows.length && mrRows[0].value) {
+            modelRouting = mrRows[0].value === '1' || mrRows[0].value === 'true'
+              ? 'Enabled' : 'Disabled (proposal pending)';
+          }
+        } catch(e) {
+          // DB connected but query failed — leave '?' values
+        }
+      }
+
+      const patternVal = patternValidated === '?' ? '? validated' : `${patternValidated} validated`;
+      const patternPro = patternProposed  === '?' ? ''            : ` · ${patternProposed} proposed`;
+      const patternDisplay = patternVal + patternPro;
+
+      const backlogDisplay = state.db
+        ? `P1: ${backlogP1Active} active, ${backlogP1Idea} ideas · P2: ${backlogP2Idea} ideas · P3: ${backlogP3Idea} ideas`
+        : 'Connect pka.db';
+
+      const dbNote = state.db ? '' : '(connect pka.db for live count)';
+
+      const rows = [
+        {
+          name: 'Subagent dispatch shims',
+          value: `${agentCount} of ${teamSize} active`,
+          valueClass: 'active-val',
+          note: '.claude/agents/*.md — one shim per team member'
+        },
+        {
+          name: 'Slash commands',
+          value: `${commandCount} active (/close-session)`,
+          valueClass: 'active-val',
+          note: '.claude/commands/close-session.md'
+        },
+        {
+          name: 'Model routing',
+          value: modelRouting,
+          valueClass: modelRouting.startsWith('Enabled') ? 'active-val' : 'pending-val',
+          note: 'Tier: Opus 4.7 / Sonnet 4.6 / Haiku 4.5; multi-provider disabled by default — flip multi_model_enabled to activate'
+        },
+        {
+          name: 'Pattern library',
+          value: patternDisplay,
+          valueClass: state.db ? 'active-val' : '',
+          note: dbNote || 'patterns/ folder + pka.db patterns table'
+        },
+        {
+          name: 'Team roster',
+          value: state.db ? `${teamRosterCount} active members` : 'Connect pka.db',
+          valueClass: state.db ? 'active-val' : '',
+          note: dbNote || 'team_members table · team/*.md persona files'
+        },
+        {
+          name: 'Backlog',
+          value: backlogDisplay,
+          valueClass: state.db ? '' : '',
+          note: dbNote || 'Open items by priority — excludes complete/deferred'
+        }
+      ];
+
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td class="cap-name">${escHtml(r.name)}</td>
+          <td class="cap-value ${r.valueClass}">${escHtml(r.value)}</td>
+          <td class="cap-note">${escHtml(r.note)}</td>
+        </tr>`).join('');
+    }
+
+    function renderSystemTab() {
+      renderProposals();
+      renderChangelog();
+      renderCapabilities();
+    }
+
+    // Initial render on DOMContentLoaded (filesystem rows always available)
+    document.addEventListener('DOMContentLoaded', function() {
+      // Defer to let mermaid run first
+      setTimeout(renderSystemTab, 200);
+    });
+
   </script>
 
 </body>

@@ -1,17 +1,32 @@
-# PKA Template — Git Ignore Rules
+# PKA — Git Ignore Rules
 
-# Generated database (created by setup.py — not committed)
-pka.db
-
-# Team Inbox raw assets
+# Team Inbox raw assets (owner-dropped files — PDFs, images, etc.)
+# These are not code and can be large. Back up separately if needed.
 team_inbox/
+
+# Archive — completed/reviewed content moved out of active folders.
+# archive/team_inbox/ holds binary assets (PDFs, images) — not tracked in git, same as team_inbox/.
+# archive/team_comms/ and archive/owners_inbox/ hold archived briefs and deliverables —
+# these ARE tracked in git so historical work survives even if the local repo is lost.
+archive/team_inbox/
+
+# Personal database — lives at ~/Documents/PKA-Data/, outside this repo entirely.
+# These lines are a safety guard in case of accidental path confusion.
+personal.db
+PKA-Data/
 
 # Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyo
+*.egg-info/
 .env
+
+# Secrets / credentials
 *.env
+.env.*
+secrets.*
 
 # OS
 .DS_Store
@@ -21,3 +36,11 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+*.swo
+
+# Obsidian
+# PKA doubles as an Obsidian vault (open-as-vault, read-only use — viewers remain primary).
+# workspace.json and workspace-mobile.json are per-user UI state — not committed.
+# app.json and other settings files are intentionally NOT ignored so vault scaffold travels with the repo.
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json

@@ -10,11 +10,14 @@ You talk to Leroy. Leroy delegates. Work lands in your inbox.
 
 PKA is a folder on your machine. It contains:
 
-- A **SQLite database** (`pka.db`) that stores everything: briefs, deliverables, journal entries, knowledge base items, assets, and feedback on your team's performance
+- A **SQLite database** (`pka.db`) that stores everything: briefs, deliverables, journal entries, knowledge base items, assets, feedback, backlog, case studies, and patterns
 - A **browser-based viewer** to read and search the DB without any server
-- A **workflow diagram** that visualizes your team and how work flows
+- A **workflow diagram** that visualizes your team, system architecture, pending proposals, and changelog
 - A set of **persona files** defining who's on your team and how they operate
 - A **CLAUDE.md** that tells Claude Code who Leroy is and how the system works
+- A **patterns layer** of validated operational templates the team can reach for
+- A **Learning Layer** that turns every delivery into an HBS-style teaching artifact
+- A **`/close-session` slash command** that makes session close a one-step routine
 
 The system grows with you. You start with two team members. You hire more when you need them.
 
@@ -35,19 +38,19 @@ cd my-pka
 python3 setup.py
 ```
 
-This creates `pka.db` with the full schema: all tables, FTS5 full-text search indexes, and sync triggers. It seeds two founding team members (Sam and PAX) and default settings.
+The setup script asks for your name, then creates `pka.db` with the full schema: 13 tables, FTS5 full-text search indexes, and sync triggers. It seeds the founding team (Sam and PAX), default settings, and Anthropic model providers.
 
 ### 3. Open the viewer
 
 Open `owners_inbox/pka-viewer/index.html` in Chrome or Edge.
 
-Click **Open pka.db** and select your `pka.db` file. You'll see tabs for Journal, Knowledge, Briefs, Assets, and Feedback — all searchable.
+Click **Open pka.db** and select your `pka.db` file. You'll see tabs for Journal, Knowledge, Briefs, Backlog, Assets, and Feedback — all searchable.
 
 ### 4. Open the workflow diagram
 
 Open `owners_inbox/pka-workflow/index.html` in Chrome or Edge.
 
-Click **Connect pka.db** to load the live team layer. The Workflow tab shows your full team; the Engineering tab shows the system scaffolding.
+Click **Connect pka.db** to load the live team layer. The Workflow tab shows your full team; the Engineering tab shows the system scaffolding (folder structure, brief lifecycle, DB schema, asset data flow); the System tab shows pending proposals, recent changelog entries, and capability status.
 
 ### 5. Start a Claude Code session
 
@@ -65,19 +68,31 @@ Introduce yourself to Leroy. Tell them your name. Give them a task.
 my-pka/
 ├── CLAUDE.md                    ← Leroy's operating rules (loaded by Claude Code automatically)
 ├── DB_SCHEMA.md                 ← Human-readable schema reference
-├── setup.py                     ← Creates pka.db on first run
+├── setup.py                     ← Creates pka.db on first run (includes install questionnaire)
 ├── check_names.py               ← Scans for snake_case violations
+├── archive.py                   ← Moves completed content to archive/ and updates pka.db
+├── CHANGELOG.md                 ← Running record of what the system can do
+├── VERSION                      ← Current version number
 ├── pka.db                       ← SQLite database (created by setup.py)
 ├── team/
 │   ├── SAM.md                   ← HR Director
 │   └── PAX.md                   ← Senior Researcher
+├── .claude/
+│   ├── agents/                  ← Subagent dispatch shims (one per team member)
+│   └── commands/
+│       └── close-session.md     ← Slash command: /close-session
 ├── team_comms/                  ← Internal: task briefs (not for the owner)
 ├── team_inbox/                  ← Drop files here for the team to process
+├── case_studies/                ← Learning Layer case writeups
+├── patterns/                    ← Validated operational templates
+├── archive/
+│   ├── team_comms/              ← Completed briefs (git-tracked)
+│   └── owners_inbox/            ← Archived deliverables (git-tracked)
 └── owners_inbox/
     ├── pka-viewer/
-    │   └── index.html           ← DB viewer
+    │   └── index.html           ← DB viewer (sql.js, no server)
     └── pka-workflow/
-        └── index.html           ← Workflow diagrams
+        └── index.html           ← Workflow + system diagrams
 ```
 
 ---
@@ -91,6 +106,7 @@ my-pka/
 5. Deliverable lands in `owners_inbox/` and is logged to the DB
 6. Leroy notifies you and asks for a 1–5 rating
 7. Feedback is stored — used later by Sam to evolve the persona
+8. The Learning Designer runs an After Action Review and writes a case study
 
 ---
 
@@ -102,6 +118,14 @@ my-pka/
 | **PAX** | Senior Researcher | Deep domain research, asset review, structured reports |
 
 **To hire someone new:** tell Leroy what you need. Leroy briefs Sam. Sam+PAX research the role, build a persona, and present it for your approval before anyone goes active.
+
+---
+
+## Session Open and Close
+
+**Session open** (automatic): Leroy runs `check_names.py`, surfaces open backlog items, and alerts you to any validated patterns added since last session.
+
+**Session close** (one command): type `/close-session` in the chat. Leroy writes a summary, updates the DB timestamp, appends a CHANGELOG entry, stages and commits all changes, and pushes to GitHub.
 
 ---
 
@@ -120,7 +144,7 @@ Some things you can say:
 ## Tools Required
 
 - **Claude Code** (claude.ai/claude-code)
-- **Python 3** (for setup.py and DB writes)
+- **Python 3** (for setup.py, archive.py, and DB writes)
 - **Chrome or Edge** (for the file viewer — requires File System Access API)
 - SQLite is bundled via sql.js (WebAssembly) — no install needed
 
