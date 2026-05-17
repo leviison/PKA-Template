@@ -1251,7 +1251,7 @@ flowchart TD
     <div class="diagram-block">
       <div class="diagram-label">2c</div>
       <h2>Database Schema</h2>
-      <p class="diagram-caption">The full pka.db entity-relationship diagram — assets feed content, briefs produce deliverables which collect feedback and AAR-driven case studies. Journal, knowledge, backlog, and settings are standalone. Model routing tables (<code>model_providers</code>, <code>task_type_models</code>) govern per-brief model tier assignment; <code>team_members</code> and <code>feedback</code> both carry FK references to <code>model_providers</code>. Updated BRIEF-099 (2026-05-15).</p>
+      <p class="diagram-caption">The full pka.db entity-relationship diagram — assets feed content, briefs produce deliverables which collect feedback and AAR-driven case studies. Journal, knowledge, backlog, and settings are standalone. Model routing tables (<code>model_providers</code>, <code>task_type_models</code>) govern per-brief model tier assignment; <code>team_members</code> and <code>feedback</code> both carry FK references to <code>model_providers</code>. <code>memory</code> is the PKA-native durable memory layer with bi-temporal state and an FTS5 mirror, landed via <code>migrations/001_memory_table.sql</code> (pre-applied at install).</p>
       <div class="diagram-wrap">
         <div class="mermaid">
 erDiagram
@@ -1377,6 +1377,31 @@ erDiagram
     string body
   }
 
+  memory {
+    int id PK
+    string slug UK
+    string type
+    string title
+    string body
+    string scope
+    string source_ref
+    string status
+    string superseded_by
+    string valid_from
+    string valid_to
+    string ingested_at
+    string approved_by
+    string provenance
+    string tags
+    string created_at
+    string updated_at
+  }
+
+  memory_fts {
+    string title
+    string body
+  }
+
   model_providers {
     int id PK
     string name
@@ -1416,6 +1441,7 @@ erDiagram
   deliverables ||--o{ feedback : "rated by"
   deliverables ||--o{ case_studies : "AAR'd into"
   patterns ||--|| patterns_fts : "FTS indexed"
+  memory ||--|| memory_fts : "FTS indexed"
   model_providers |o--o| model_providers : "fallback"
   task_type_models }o--|| model_providers : "assigned tier"
   team_members }o--o| model_providers : "default tier"

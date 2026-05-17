@@ -107,7 +107,7 @@ To change the model, update the `settings` table: `UPDATE settings SET value='on
 **File:** `pka.db` (SQLite + FTS5)
 **Schema reference:** `DB_SCHEMA.md`
 
-Tables: `assets`, `content`, `briefs`, `deliverables`, `journal`, `knowledge`, `feedback`, `settings`, `team_members`, `backlog`, `case_studies`, `model_providers`, `task_type_models`
+Tables: `assets`, `content`, `briefs`, `deliverables`, `journal`, `knowledge`, `feedback`, `settings`, `team_members`, `backlog`, `case_studies`, `patterns`, `memory`, `schema_migrations`, `model_providers`, `task_type_models`
 Full-text search via FTS5 virtual tables on all major text content.
 
 Run `python3 setup.py` to create `pka.db` on first use.
@@ -203,6 +203,16 @@ Every non-trivial PKA deliverable produces a teaching artifact. This is not opti
 
 **Pedagogical stance.** PKA teaches through **discovery and principles**, not through procedural drill. The discovery exercise puts the learner in the role they will occupy in real life (for executives commissioning AI, that means commissioner-mode, not builder-mode). Case writeups extract the underlying principle, not just the surface mechanics.
 
+### Reflection Pass
+
+Monthly (calendar-anchored, with a volume override when ≥40 new feedback rows or a major architectural event have accumulated since the last pass), the Learning Designer runs a reflection pass against the `memory` table. The pass reads recent feedback, deliverables, session-close summaries, and journal entries; proposes ADD / UPDATE / SUPERSEDE / INVALIDATE / NOOP operations against existing memory; and produces a deliverable to `owners_inbox/reflection_<date>.md`. The owner approves the proposed operations item-by-item in chat; Leroy applies approved operations via `memory_io.write_memory_row()` / `supersede()` / `UPDATE memory SET status='invalidated'`.
+
+The reflection pass does NOT write to the Intent layer. Memory-table promotions only. Persona-file revisions, CLAUDE.md amendments, and new `patterns/` entries that surface in the pass are flagged as out-of-scope items and routed as separate deliverables to Sam (persona), Leroy (pattern), or the owner (CLAUDE.md).
+
+Trigger: a Leroy-initiated brief, surfaced at Session Open when the calendar or volume condition fires (see Session Open Protocol step 4). The pass is never run while the owner is offline (the approval gate would not close); a deferred pass becomes a Session Open prompt next session.
+
+Procedure document: `owners_inbox/reflection_pass_procedure.md`.
+
 ---
 
 ## Team Roster
@@ -284,7 +294,34 @@ If any rows are returned, present them to the owner: *"Also — [N] pattern(s) r
 
 If no rows are returned, say nothing — no silent-path message needed.
 
-4. **Do not block on backlog or patterns** — if the owner has a specific task in mind, proceed with it. Backlog and pattern surfacing are informational, not a gate.
+4. **Surface reflection-pass due signal** — query pka.db:
+
+```sql
+SELECT
+  (SELECT COUNT(*) FROM feedback
+   WHERE created_at > (SELECT value FROM settings WHERE key='last_reflection_pass_at'))
+    AS new_feedback_rows,
+  (SELECT value FROM settings WHERE key='last_reflection_pass_at') AS last_pass,
+  date('now', 'start of month') AS current_month_start;
+```
+
+If `new_feedback_rows >= 40` OR `last_pass < current_month_start`, present to the owner: *"A reflection pass is due — [N] new feedback rows since [last_pass]. Want to run it this session, or defer?"*
+
+Pattern: do not block. If the owner has a specific task, proceed with it. The reflection pass can wait one session; if it has been deferred three sessions in a row, escalate the deferral count.
+
+5. **Do not block on backlog, patterns, or reflection-pass surfacing** — if the owner has a specific task in mind, proceed with it. The surfacing steps are informational, not a gate.
+
+6. **Load memory context.** Run the full load-profile query against `pka.db`:
+
+   ```sql
+   SELECT slug, type, title, body
+   FROM memory
+   WHERE status = 'active'
+     AND (valid_to IS NULL OR valid_to > CURRENT_TIMESTAMP)
+   ORDER BY ingested_at DESC;
+   ```
+
+   Treat the returned rows as durable working context — they are the team's accumulated discipline, user-context, and feedback patterns. Carry them into every interaction the same way you carry `CLAUDE.md`. On a fresh install the table is empty and this query returns zero rows — that is expected; proceed.
 
 ---
 

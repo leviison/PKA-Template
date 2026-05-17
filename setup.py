@@ -353,6 +353,111 @@ def create_database():
     WHEN new.updated_at = old.updated_at BEGIN
         UPDATE patterns SET updated_at = datetime('now') WHERE id = new.id;
     END;
+
+    -- ── MEMORY LAYER (migration 001 — embedded for first-install simplicity) ──
+    -- The memory table holds PKA's durable cross-session memory: user facts,
+    -- project context, feedback patterns, pedagogy, operational discipline.
+    -- DB is authoritative; `memory/<slug>.md` is the markdown mirror written
+    -- by memory_io.py. The same DDL also lives in migrations/001_memory_table.sql
+    -- so future installs that use the migration runner stay consistent.
+    -- The schema_migrations row inserted below marks 001 as already applied,
+    -- so `migrations/migrate.py status` reports it as `applied` (not `pending`).
+
+    CREATE TABLE IF NOT EXISTS memory (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        slug            TEXT NOT NULL UNIQUE,
+        type            TEXT NOT NULL
+                            CHECK (type IN (
+                                'user_fact',
+                                'project',
+                                'feedback',
+                                'pedagogy',
+                                'preference',
+                                'pattern_ref',
+                                'operational'
+                            )),
+        title           TEXT NOT NULL,
+        body            TEXT NOT NULL,
+        scope           TEXT NOT NULL
+                            CHECK (
+                                scope = 'global'
+                                OR scope = 'owner_only'
+                                OR scope LIKE 'team_member:%'
+                            ),
+        source_ref      TEXT,
+        status          TEXT NOT NULL DEFAULT 'active'
+                            CHECK (status IN (
+                                'active',
+                                'superseded',
+                                'deferred',
+                                'invalidated'
+                            )),
+        superseded_by   TEXT,
+        valid_from      TEXT NOT NULL DEFAULT (datetime('now')),
+        valid_to        TEXT,
+        ingested_at     TEXT NOT NULL DEFAULT (datetime('now')),
+        approved_by     TEXT,
+        provenance      TEXT NOT NULL
+                            CHECK (provenance IN (
+                                'human_confirmed',
+                                'leroy_inferred',
+                                'model_inferred'
+                            )),
+        tags            TEXT,
+        created_at      TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at      TEXT NOT NULL DEFAULT (datetime('now')),
+
+        CHECK (
+            (status = 'superseded' AND superseded_by IS NOT NULL)
+            OR (status != 'superseded' AND superseded_by IS NULL)
+        ),
+        CHECK (valid_to IS NULL OR valid_to >= valid_from)
+    );
+
+    CREATE INDEX IF NOT EXISTS memory_scope_status_idx
+        ON memory (scope, status);
+    CREATE INDEX IF NOT EXISTS memory_status_type_idx
+        ON memory (status, type);
+    CREATE INDEX IF NOT EXISTS memory_ingested_at_idx
+        ON memory (ingested_at DESC);
+
+    CREATE VIRTUAL TABLE IF NOT EXISTS memory_fts USING fts5(
+        title,
+        body,
+        content='memory',
+        content_rowid='id'
+    );
+
+    CREATE TRIGGER IF NOT EXISTS memory_ai AFTER INSERT ON memory BEGIN
+        INSERT INTO memory_fts(rowid, title, body)
+        VALUES (new.id, new.title, new.body);
+    END;
+    CREATE TRIGGER IF NOT EXISTS memory_au AFTER UPDATE ON memory BEGIN
+        INSERT INTO memory_fts(memory_fts, rowid, title, body)
+        VALUES ('delete', old.id, old.title, old.body);
+        INSERT INTO memory_fts(rowid, title, body)
+        VALUES (new.id, new.title, new.body);
+    END;
+    CREATE TRIGGER IF NOT EXISTS memory_ad AFTER DELETE ON memory BEGIN
+        INSERT INTO memory_fts(memory_fts, rowid, title, body)
+        VALUES ('delete', old.id, old.title, old.body);
+    END;
+    CREATE TRIGGER IF NOT EXISTS memory_touch AFTER UPDATE ON memory
+    WHEN OLD.updated_at = NEW.updated_at
+    BEGIN
+        UPDATE memory SET updated_at = datetime('now') WHERE id = NEW.id;
+    END;
+
+    -- ── MIGRATION FRAMEWORK ───────────────────────────────────────────────────
+    -- The migration runner at migrations/migrate.py creates this table on its
+    -- first invocation. We create it eagerly in setup.py so the install
+    -- experience is single-script, and so we can record migration 001 below
+    -- as already applied (its DDL is embedded above).
+
+    CREATE TABLE IF NOT EXISTS schema_migrations (
+        name        TEXT PRIMARY KEY,
+        applied_at  TEXT NOT NULL DEFAULT (datetime('now'))
+    );
     """)
 
     # ── SEED: model_providers (Anthropic-only; non-Anthropic rows added later) ──
@@ -382,6 +487,11 @@ def create_database():
         # Epoch sentinel — Session Open Protocol pattern-surfacing query uses this
         # as the cutoff; an epoch value ensures the first session sees all patterns.
         ('last_session_close_at',    '1970-01-01T00:00:00'),
+        # Epoch sentinel — Session Open Protocol reflection-pass-due query uses
+        # this to decide if the monthly reflection pass is due. The epoch value
+        # ensures the first session correctly observes "no pass has ever run"
+        # so the calendar-floor and volume-override conditions fire normally.
+        ('last_reflection_pass_at',  '1970-01-01T00:00:00'),
         # ── Install Experience Seeds ──────────────────────────────────────────
         # Empty values signal "not yet configured" to Leroy's First-Run Protocol
         # (see CLAUDE.md Session Open Protocol). Leroy collects these
@@ -394,6 +504,16 @@ def create_database():
     db.executemany(
         "INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)",
         settings_seed
+    )
+
+    # ── SEED: schema_migrations ──────────────────────────────────────────────
+    # Migration 001 (memory table + FTS + triggers + indexes) is embedded in
+    # the executescript() above for first-install simplicity. Record it as
+    # already-applied so `python3 migrations/migrate.py status` reports it
+    # correctly and a future `migrate.py up` does not try to re-apply it.
+    db.execute(
+        "INSERT OR IGNORE INTO schema_migrations (name) VALUES (?)",
+        ('001_memory_table',)
     )
 
     # ── SEED: founding team members ───────────────────────────────────────────

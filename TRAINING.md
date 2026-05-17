@@ -79,6 +79,21 @@ One design choice worth noting: in a live PKA instance, `pka.db` is committed to
 
 ---
 
+## The Memory Layer
+
+`pka.db` also includes a `memory` table — PKA's durable cross-session memory. Rows hold user facts, project state, feedback patterns, pedagogy, preferences, and operational discipline. The DB is authoritative; `memory/<slug>.md` is a markdown mirror written by `memory_io.py` so the same facts are git-readable and human-editable.
+
+Each persona shim (`.claude/agents/<slug>.md`) declares a `load_profile` (`narrow` / `type-filtered` / `full`) and a `default_load_types` list. On every invocation, the shim runs a parameterised SQL query against `memory` and treats the returned rows as priors — the same weight as `CLAUDE.md` and the persona file. Leroy uses the full load profile at session open (CLAUDE.md Session Open step 6) so the orchestrator carries the team's accumulated context into every conversation.
+
+A fresh install ships with an empty `memory` table — the structure is there, but no rows. Rows accumulate two ways:
+
+1. **Ad-hoc writes through `memory_io.write_memory_row(...)`** — Leroy writes a row when the owner says something durable ("from now on, always …"), or when a feedback pattern hardens into a rule.
+2. **Reflection pass** — the Learning Designer runs a monthly pass against the table (calendar-anchored, with a volume-override when ≥40 new feedback rows have accumulated). The pass proposes ADD / UPDATE / SUPERSEDE / INVALIDATE / NOOP operations against existing memory; the owner approves item-by-item; Leroy applies via `memory_io`. The procedure is documented in `owners_inbox/reflection_pass_procedure.md`. The reflection pass does NOT write to the Intent layer (CLAUDE.md, personas, patterns) — Intent-layer items surface as separate deliverables.
+
+Schema changes (now and in the future) land via the migration framework in `migrations/`. Migration 001 (the `memory` table itself) ships pre-applied; numbered SQL files in `migrations/NNN_<slug>.sql` are how new owners evolve the schema as their use case develops.
+
+---
+
 ## The Feedback Loop
 
 Every delivery triggers a feedback request. Leroy asks: *"Quick rating for [Name] on this one? 1–5, and any notes."*

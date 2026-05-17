@@ -17,6 +17,32 @@ Append a new entry at the **top** of the releases section each session close. Us
 
 ## Releases
 
+## [1.1.0] — 2026-05-16
+
+### Added
+
+**PKA installs ship with a durable memory layer.** A `memory` table in `pka.db` (with markdown mirrors in `memory/`) carries user facts, project state, feedback patterns, pedagogy, preferences, and operational discipline from one session to the next. The DB is authoritative; the markdown mirror keeps the same facts git-readable and human-editable. Each persona's dispatch shim (`.claude/agents/<slug>.md`) declares a `load_profile` and reads its relevant slice of memory on every invocation — treating the rows as priors alongside `CLAUDE.md` and the persona file.
+
+**A monthly reflection pass keeps memory consolidated.** The Learning Designer runs a calendar-anchored monthly pass (with a volume override when ≥40 new feedback rows or a major architectural event have accumulated) that proposes ADD / UPDATE / SUPERSEDE / INVALIDATE / NOOP operations against the `memory` table. The owner approves item-by-item in chat; Leroy applies via `memory_io`. The procedure is documented in `owners_inbox/reflection_pass_procedure.md`. The pass does not write to the Intent layer — Intent-layer items surface as separate deliverables.
+
+**A migration framework supports future schema evolution.** New owners can grow `pka.db`'s schema via numbered SQL files in `migrations/`, applied with `python3 migrations/migrate.py up`. Each migration carries an UP block and a DOWN block separated by a `-- +migrate Down` marker. The runner records applied migrations in the `schema_migrations` table. Migration 001 (the `memory` table itself) ships pre-applied via `setup.py` so the install experience stays single-script.
+
+**Leroy now loads memory context at session open.** A new step in the Session Open Protocol queries the `memory` table for all active rows and carries the result into the conversation as durable working context. On a fresh install the table is empty; rows accumulate through ad-hoc `memory_io.write_memory_row()` writes and through reflection-pass promotions.
+
+**Leroy surfaces when a reflection pass is due.** A new Session Open step checks whether the calendar floor has been crossed or the volume threshold has been hit since `last_reflection_pass_at`. If either fires, Leroy asks whether to run the pass this session or defer.
+
+### Changed
+
+**`setup.py` creates two new tables (`memory`, `schema_migrations`)** and seeds `last_reflection_pass_at` with an epoch sentinel so the first session correctly observes "no pass has ever run." Idempotent — re-running `setup.py` on an existing install does not duplicate seed rows.
+
+**`CLAUDE.md` Session Open Protocol now has 6 steps** (was 4): naming check, backlog surfacing, pattern surfacing, reflection-pass-due check, the no-block rule, and memory-context load.
+
+**The Learning Layer section in `CLAUDE.md` now includes the Reflection Pass subsection** describing the monthly cadence, volume override, governance flow, and the no-Intent-layer-writes rule.
+
+**Diagram 2C now reflects the `memory` + `memory_fts` blocks** in the entity-relationship view.
+
+---
+
 ## [1.0.0] — template-initial
 
 ### Added

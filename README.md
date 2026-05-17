@@ -16,6 +16,8 @@ PKA is a folder on your machine. It contains:
 - A set of **persona files** defining who's on your team and how they operate
 - A **CLAUDE.md** that tells Claude Code who Leroy is and how the system works
 - A **patterns layer** of validated operational templates the team can reach for
+- A **memory layer** that carries durable context from one session to the next (user facts, project state, feedback patterns, operational discipline). Each persona reads its relevant slice at session start; a monthly reflection pass keeps it consolidated. Markdown mirrors live in `memory/`; the DB is authoritative.
+- A **migration framework** (`migrations/`) so the schema can evolve without breaking existing installs
 - A **Learning Layer** that turns every delivery into an HBS-style teaching artifact
 - A **`/close-session` slash command** that makes session close a one-step routine
 
@@ -38,7 +40,7 @@ cd my-pka
 python3 setup.py
 ```
 
-The setup script asks for your name, then creates `pka.db` with the full schema: 13 tables, FTS5 full-text search indexes, and sync triggers. It seeds the founding team (Sam and PAX), default settings, and Anthropic model providers.
+The setup script asks for your name, then creates `pka.db` with the full schema: 15 tables (including the `memory` layer and the `schema_migrations` ledger), FTS5 full-text search indexes, and sync triggers. It seeds the founding team (Sam and PAX), default settings, and Anthropic model providers. Migration 001 (`memory` table + FTS + triggers) ships pre-applied; future migrations land via `python3 migrations/migrate.py up`.
 
 ### 3. Open the viewer
 
@@ -85,6 +87,9 @@ my-pka/
 ├── team_inbox/                  ← Drop files here for the team to process
 ├── case_studies/                ← Learning Layer case writeups
 ├── patterns/                    ← Validated operational templates
+├── memory/                      ← Markdown mirrors of the memory table (DB is authoritative)
+├── memory_io.py                 ← Write contract for the memory layer (UPSERT + markdown mirror)
+├── migrations/                  ← Migration framework — runner + numbered SQL files
 ├── archive/
 │   ├── team_comms/              ← Completed briefs (git-tracked)
 │   └── owners_inbox/            ← Archived deliverables (git-tracked)

@@ -287,6 +287,66 @@ Validated operational templates for the PKA team — when to reach for a shape o
 
 ---
 
+### `memory`
+PKA-native durable memory layer. The DB is authoritative; `memory/<slug>.md` is the human/git-readable mirror written by `memory_io.py`. Memory rows are how PKA carries durable context (user facts, project state, feedback patterns, pedagogy, operational discipline) from one session to the next.
+
+| Column | Type | Notes |
+|---|---|---|
+| id | INTEGER PK | Auto-increment |
+| slug | TEXT UNIQUE | Kebab-case stable id; used in `[[wikilinks]]` and as the markdown filename stem |
+| type | TEXT NOT NULL | CHECK: `user_fact` / `project` / `feedback` / `pedagogy` / `preference` / `pattern_ref` / `operational` |
+| title | TEXT NOT NULL | One-line summary; becomes the index entry |
+| body | TEXT NOT NULL | Durable content |
+| scope | TEXT NOT NULL | CHECK: `global` / `owner_only` / `team_member:<slug>` |
+| source_ref | TEXT | Brief ref, feedback id, deliverable id, etc. |
+| status | TEXT NOT NULL | CHECK: `active` / `superseded` / `deferred` / `invalidated`; default `active` |
+| superseded_by | TEXT | Slug of replacement; NULL unless status=`superseded` |
+| valid_from | TEXT NOT NULL | ISO datetime; defaults to creation |
+| valid_to | TEXT | ISO datetime; NULL = currently valid (bi-temporal) |
+| ingested_at | TEXT NOT NULL | When PKA learned it; defaults to creation |
+| approved_by | TEXT | Owner for promotions requiring Intent-layer approval |
+| provenance | TEXT NOT NULL | CHECK: `human_confirmed` / `leroy_inferred` / `model_inferred` |
+| tags | TEXT | CSV |
+| created_at | TEXT NOT NULL | ISO datetime, auto-set |
+| updated_at | TEXT NOT NULL | ISO datetime, auto-updated via trigger |
+
+**Constraints (CHECK):**
+- `type`, `scope`, `status`, `provenance` are enum-checked (see column notes).
+- `status='superseded'` iff `superseded_by IS NOT NULL` (XOR invariant).
+- `valid_to IS NULL OR valid_to >= valid_from`.
+
+**Indexes:**
+- `memory_scope_status_idx (scope, status)` — drives the narrow load profile.
+- `memory_status_type_idx (status, type)` — drives the type-filtered load profile.
+- `memory_ingested_at_idx (ingested_at DESC)` — drives the `ORDER BY ingested_at DESC LIMIT 30` recency clause.
+
+**Triggers:** `memory_ai` / `memory_au` / `memory_ad` keep `memory_fts` in sync; `memory_touch` auto-refreshes `updated_at` on UPDATE (when not explicitly set by the app). Same shape as `patterns_ai` / `patterns_au` / `patterns_ad` / `patterns_touch`.
+
+**FTS5:** `memory_fts` indexes `title + body`, external content (`content='memory'`).
+
+**Markdown mirror:** Each row is mirrored to `memory/<slug>.md` by `memory_io.py`. The DB is authoritative on conflict — external edits to the markdown file are not synced back automatically.
+
+**Status lifecycle:**
+- `active` — currently valid memory
+- `superseded` — replaced by a newer row (`superseded_by` set, `valid_to` set)
+- `deferred` — proposed but not promoted (rare; used by the reflection pass for "owner declined to promote yet")
+- `invalidated` — explicitly retracted (the row was wrong, not just stale)
+
+**Bi-temporal query — "what did PKA believe at time T":**
+```sql
+SELECT * FROM memory
+WHERE valid_from <= :T
+  AND (valid_to IS NULL OR valid_to > :T);
+```
+
+**Note:** `superseded_by` is a text cross-reference (not a FK) — same convention as `patterns.superseded_by`.
+
+**DB authoritative; mirror at `memory/<slug>.md`.** Operational writes go through `memory_io.write_memory_row(...)` and `memory_io.supersede(...)`. External edits to the markdown files are not auto-synced back — use `memory_io.import_markdown(<slug>)` or `python3 memory_io.py import <path>` to roundtrip a manual edit.
+
+**Schema management:** the memory table lands via `migrations/001_memory_table.sql`, recorded as already-applied by `setup.py` in `schema_migrations`. Future schema evolution (002, 003, …) uses `python3 migrations/migrate.py up`.
+
+---
+
 ### `model_providers`
 Registry of AI model providers PKA can route work to. Each row is a specific model at a specific endpoint with its own auth configuration and fallback chain.
 
