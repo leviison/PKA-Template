@@ -1226,7 +1226,7 @@ flowchart TD
   WORK --> DELIVER["Deliverable written to\nOwners Inbox/"]
   DELIVER --> DB_DELIV["INSERT INTO deliverables\nbriefs.id FK + file_path"]
 
-  DB_DELIV --> FILE_MOVE["brief_ref.md MOVED to archive/team_comms/\nvia archive.py brief <ref>"]
+  DB_DELIV --> FILE_MOVE["brief_ref.md MOVED to archive/team_comms/\nvia archive.py brief [ref]"]
   FILE_MOVE --> DB_UPDATE["UPDATE briefs SET\nstatus complete\ncompleted_at set"]
 
   DB_UPDATE --> FEEDBACK["Owner reviews deliverable\nand provides rating"]
