@@ -10,7 +10,7 @@ You talk to Leroy. Leroy delegates. Work lands in your inbox.
 
 PKA is a folder on your machine. It contains:
 
-- A **SQLite database** (`pka.db`) that stores everything: briefs, deliverables, journal entries, knowledge base items, assets, feedback, backlog, case studies, and patterns
+- **Three SQLite databases** with three responsibilities: `pka.db` (operations — briefs, deliverables, feedback, patterns, protocols, memory, model routing, economics) and `projects.db` (engagement-scoped assets, content, project-tier memory) live in the repo; `personal.db` (journal, tasks, notes, posture, observations) lives outside the repo at a configurable location (default `~/PKA-Data/`) and is never committed
 - A **browser-based viewer** to read and search the DB without any server
 - A **workflow diagram** that visualizes your team, system architecture, pending proposals, and changelog
 - A set of **persona files** defining who's on your team and how they operate
@@ -20,6 +20,12 @@ PKA is a folder on your machine. It contains:
 - A **migration framework** (`migrations/`) so the schema can evolve without breaking existing installs
 - A **Learning Layer** that turns every delivery into an HBS-style teaching artifact
 - A **`/close-session` slash command** that makes session close a one-step routine
+- A **productization discipline** in `CLAUDE.md` Strategic Direction that binds every future tool/persona/pattern build to value-asymmetry, rule-of-three, and demotion-criterion checks — so the team ships discipline alongside capability
+- A **protocols layer** (`protocols/`) for standing dispatch-layer disciplines that fire automatically when triggers land — distinct from patterns (which fire at decision time)
+- An **owner-observability discipline** (`personal.db.owner_posture` / `owner_observations` / `orchestrator_observations` / `team_observations`) that captures the four observer/subject pairings the team needs to learn the principal it serves
+- A **hooks layer** (`hooks/pka_guard.py`) for cross-session safety — blocks brief-ref collisions, surfaces foreign sessions, protects team_comms files. Local-only, runs as user, no network.
+- A **tools catalog** (`TOOLS.md`) documenting every productized tool with its demotion criterion
+- **Per-brief token economics** (`pka.db.economics` + `model_pricing`) that capture tokens, tool uses, duration, and cost per deliverable
 
 The system grows with you. You start with two team members. You hire more when you need them.
 
@@ -40,7 +46,9 @@ cd my-pka
 python3 setup.py
 ```
 
-The setup script asks for your name, then creates `pka.db` with the full schema: 15 tables (including the `memory` layer and the `schema_migrations` ledger), FTS5 full-text search indexes, and sync triggers. It seeds the founding team (Sam and PAX), default settings, and Anthropic model providers. Migration 001 (`memory` table + FTS + triggers) ships pre-applied; future migrations land via `python3 migrations/migrate.py up`.
+The setup script asks for your name and the location for your personal-tier database (default `~/PKA-Data/`), then creates three databases: `pka.db` (Operations — 16 tables including memory, economics, model_pricing, patterns, protocols, schema_migrations), `projects.db` (Projects — 5 tables for engagement-scoped assets, content, and project-tier memory), and `personal.db` (Owner — 8 tables for journal, tasks, notes, posture, and observations). FTS5 full-text search indexes and sync triggers ship across all three tiers. The script seeds the founding team (Sam and PAX), default settings, Anthropic model providers + pricing, and six validated patterns. Six baseline migrations are recorded as pre-applied across the three tiers; future migrations land via `python3 migrations/migrate.py up --dir <tier>`.
+
+To override the personal-tier location: `python3 setup.py --personal-data-dir ~/Documents/MyName-Data`. The chosen path is recorded in `pka.db.settings.personal_db_path` so every helper finds it without re-configuration.
 
 ### 3. Open the viewer
 
@@ -62,6 +70,23 @@ claude
 
 Introduce yourself to Leroy. Tell them your name. Give them a task.
 
+### 6. (Optional) Activate cross-session safety hooks
+
+The repo ships with `hooks/pka_guard.py`, a Claude Code hook that surfaces foreign sessions on open, blocks brief-ref numbering collisions, and protects team_comms files from accidental destructive operations. The hook is a no-op until registered in `~/.claude/settings.json`. To activate, add this block to your settings (merge with your existing hooks if any):
+
+```json
+{
+  "hooks": {
+    "SessionStart": [{"hooks": [{"type": "command", "command": "python3 <ABSOLUTE_PATH_TO_REPO>/hooks/pka_guard.py SessionStart"}]}],
+    "PreToolUse":   [{"hooks": [{"type": "command", "command": "python3 <ABSOLUTE_PATH_TO_REPO>/hooks/pka_guard.py PreToolUse"}]}],
+    "Stop":         [{"hooks": [{"type": "command", "command": "python3 <ABSOLUTE_PATH_TO_REPO>/hooks/pka_guard.py Stop"}]}],
+    "SubagentStop": [{"hooks": [{"type": "command", "command": "python3 <ABSOLUTE_PATH_TO_REPO>/hooks/pka_guard.py SubagentStop"}]}]
+  }
+}
+```
+
+Replace `<ABSOLUTE_PATH_TO_REPO>` with the absolute path to your PKA install. The hook is local-only — no network, runs as your user, ~40ms median PreToolUse latency. See `TOOLS.md` for the full hook discipline.
+
 ---
 
 ## Folder Structure
@@ -69,13 +94,19 @@ Introduce yourself to Leroy. Tell them your name. Give them a task.
 ```
 my-pka/
 ├── CLAUDE.md                    ← Leroy's operating rules (loaded by Claude Code automatically)
-├── DB_SCHEMA.md                 ← Human-readable schema reference
-├── setup.py                     ← Creates pka.db on first run (includes install questionnaire)
-├── check_names.py               ← Scans for snake_case violations
-├── archive.py                   ← Moves completed content to archive/ and updates pka.db
+├── DB_SCHEMA.md                 ← Human-readable schema reference (now three-tier)
+├── TOOLS.md                     ← Catalog of productized tools + demotion criteria
+├── setup.py                     ← Creates pka.db + projects.db + personal.db (install questionnaire)
+├── check_names.py               ← Scans for snake_case violations (instrumented; --evaluate-demotion-criterion mode)
+├── archive.py                   ← Moves completed content to archive/ (three-tier aware)
+├── memory_io.py                 ← Write contract for pka.db memory + cross-tier promotion helper
+├── projects_memory_io.py        ← Write contract for projects.db memory
+├── economics_io.py              ← Per-brief token economics capture
 ├── CHANGELOG.md                 ← Running record of what the system can do
 ├── VERSION                      ← Current version number
-├── pka.db                       ← SQLite database (created by setup.py)
+├── pka.db                       ← Operations tier (created by setup.py)
+├── projects.db                  ← Projects tier (created by setup.py)
+│                                  personal.db lives at ~/PKA-Data/personal.db (outside repo)
 ├── team/
 │   ├── SAM.md                   ← HR Director
 │   └── PAX.md                   ← Senior Researcher
@@ -86,10 +117,17 @@ my-pka/
 ├── team_comms/                  ← Internal: task briefs (not for the owner)
 ├── team_inbox/                  ← Drop files here for the team to process
 ├── case_studies/                ← Learning Layer case writeups
-├── patterns/                    ← Validated operational templates
+├── patterns/                    ← Validated operational templates (6 ship at install)
+├── protocols/                   ← Standing dispatch-layer disciplines (owner_observability ships at install)
+├── hooks/
+│   └── pka_guard.py             ← Cross-session safety hook (register in ~/.claude/settings.json)
+├── tools/
+│   └── status_now.py            ← Read-only pka.db status snapshot (run in a tmux pane)
 ├── memory/                      ← Markdown mirrors of the memory table (DB is authoritative)
-├── memory_io.py                 ← Write contract for the memory layer (UPSERT + markdown mirror)
-├── migrations/                  ← Migration framework — runner + numbered SQL files
+├── tests/                       ← Test suite (promote-from-observation coverage)
+├── migrations/                  ← Three-tier migration framework — runner + numbered SQL files
+│   ├── personal/                ← Personal-tier migrations
+│   └── projects/                ← Projects-tier migrations
 ├── archive/
 │   ├── team_comms/              ← Completed briefs (git-tracked)
 │   └── owners_inbox/            ← Archived deliverables (git-tracked)
@@ -97,7 +135,7 @@ my-pka/
     ├── pka-viewer/
     │   └── index.html           ← DB viewer (sql.js, no server)
     └── pka-workflow/
-        └── index.html           ← Workflow + system diagrams
+        └── index.html           ← Workflow + system diagrams (now includes projects.db ER + personal.db observability tables)
 ```
 
 ---
@@ -157,4 +195,9 @@ Some things you can say:
 
 ## For More Context
 
-Read `TRAINING.md` for the full story: why this system was built this way, the design decisions behind it, and how to adapt it for different use cases.
+- **`TRAINING.md`** — the full story: why this system was built this way, the design decisions behind it, and how to adapt it for different use cases.
+- **`TOOLS.md`** — catalog of productized tools with demotion criteria and discipline notes.
+- **`CLAUDE.md`** — Leroy's full operating rules, including the Strategic Direction and Productization Discipline sections that govern future tool/persona/pattern decisions.
+- **`patterns/README.md`** — pattern catalog with family taxonomy.
+- **`protocols/README.md`** — protocols catalog and the protocols-vs-patterns distinction.
+- **`DB_SCHEMA.md`** — full schema reference across all three tiers with ATTACH DATABASE worked examples.

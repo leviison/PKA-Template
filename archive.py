@@ -22,6 +22,32 @@ Examples:
     python3 archive.py --list briefs
 
 Replaces archive_asset.py (v1, asset-only).
+
+## Demotion criterion
+
+Split criterion.
+
+Write-path: retire `archive.py`'s move-and-update operation when either:
+
+  (a) PKA's compaction discipline changes — e.g., briefs become
+      immutable-from-creation with no archive step, or the brief
+      lifecycle eliminates the open->complete->archive transition
+      entirely, OR
+  (b) A more general DB-row-and-file-coordination tool subsumes the
+      function (the dual-mirror generalization is the most likely
+      candidate — see BACKLOG-040 / dual_mirror_io.py from PAX
+      BRIEF-142 §2.1 §5/test case 7, which would handle DB+file
+      coordination across patterns, case_studies, memory, *and* the
+      archive operation).
+
+Read-path: permanent infrastructure as long as the `archive/`
+directory exists and DB rows reference archived state. The read-path
+retires only if PKA stops indexing archived rows or deletes the
+`archive/` tree — neither has a current candidate.
+
+Source: owners_inbox/tool_demotion_criteria_proposal.md (Levi-approved
+2026-05-20). Update via Leroy-drafted, Levi-approved deliverable; do not
+modify unilaterally.
 """
 
 import sys
@@ -33,6 +59,7 @@ from datetime import datetime
 
 PKA_ROOT = Path(__file__).parent
 DB_PATH = PKA_ROOT / "pka.db"
+PROJECTS_DB_PATH = PKA_ROOT / "projects.db"
 ARCHIVE_DIR = PKA_ROOT / "archive"
 ARCHIVE_TEAM_INBOX = ARCHIVE_DIR / "team_inbox"
 ARCHIVE_TEAM_COMMS = ARCHIVE_DIR / "team_comms"
@@ -42,7 +69,19 @@ PATTERNS_DIR         = PKA_ROOT / "patterns"
 
 
 def _connect():
+    """Open pka.db (Operations tier — briefs, deliverables, patterns)."""
     conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
+
+
+def _connect_projects():
+    """Open projects.db (Projects tier — assets, content).
+
+    Asset/content tables moved out of pka.db in migration 003
+    (BRIEF-132). Asset operations route here.
+    """
+    conn = sqlite3.connect(PROJECTS_DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
@@ -70,7 +109,8 @@ def _move(src: Path, dst: Path) -> bool:
 # ---------- ASSETS ----------
 
 def archive_asset(asset_id: int):
-    conn = _connect()
+    # assets table lives in projects.db (Projects tier) — see BRIEF-132.
+    conn = _connect_projects()
     row = conn.execute(
         "SELECT id, filename, path, status FROM assets WHERE id = ?", (asset_id,)
     ).fetchone()
@@ -184,7 +224,11 @@ def archive_pattern(pattern_ref: str):
 # ---------- LIST ----------
 
 def list_items(item_type: str):
-    conn = _connect()
+    # assets lives in projects.db; briefs/deliverables/patterns in pka.db.
+    if item_type == "assets":
+        conn = _connect_projects()
+    else:
+        conn = _connect()
     if item_type == "assets":
         rows = conn.execute(
             "SELECT id, filename, status FROM assets WHERE status != 'archived' ORDER BY id"

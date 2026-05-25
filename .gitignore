@@ -10,10 +10,27 @@ team_inbox/
 # these ARE tracked in git so historical work survives even if the local repo is lost.
 archive/team_inbox/
 
-# Personal database — lives at ~/Documents/PKA-Data/, outside this repo entirely.
+# Personal database — lives at ~/PKA-Data/ by default, outside this repo entirely.
 # These lines are a safety guard in case of accidental path confusion.
 personal.db
 PKA-Data/
+
+# Pre-migration backup files (created by ad-hoc operator backups before
+# running a migration manually). The migration runner does not create these;
+# the convention is operator-driven. Pattern catches any of the three tiers.
+pka.db.pre_*
+projects.db.pre_*
+personal.db.pre_*
+
+# Tool operational logs (local-machine state — runs of repo-resident tools).
+# check_names.py appends one JSON line per run to logs/check_names.jsonl; the
+# log is local-machine state used by --evaluate-demotion-criterion, not a
+# durable artifact.
+logs/
+
+# pka_guard hook session-registration files. Filesystem-only session
+# substrate (local-machine state, gated by SESSION_STALE_HOURS in the hook).
+tools/.sessions/
 
 # Python
 __pycache__/

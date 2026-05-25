@@ -58,18 +58,15 @@ The implication: `team_comms/` should always be nearly empty. If it has old brie
 
 `pka.db` is a SQLite file. It is not a backup — it is the system's memory.
 
-Every meaningful thing that happens gets written to the DB:
-- Tasks (briefs table)
-- Completed work (deliverables table)
-- Feedback on that work (feedback table)
-- Files dropped in for processing (assets table)
-- Content extracted from those files (content table)
-- Journal entries (journal table)
-- Reference knowledge (knowledge table)
-- Deferred work (backlog table)
-- Teaching artifacts (case_studies table)
-- Operational templates (patterns table)
-- AI provider registry (model_providers table)
+Every meaningful thing that happens gets written to one of three databases:
+
+**`pka.db` — Operations tier.** Briefs, deliverables, feedback, journal, knowledge, backlog, patterns, protocols, case studies, model routing, per-brief token economics, durable memory. The team's substrate. Committed to the repo so the operating discipline accumulates in git history.
+
+**`projects.db` — Projects tier.** Files dropped in for processing (assets table), content extracted from those files (content table), and engagement-scoped memory (`projects.db.memory` — facts that belong to one engagement, like deployment topology or environment quirks, that would not generalize across owners or projects). Committed to the repo. Lives alongside `pka.db` at the repo root.
+
+**`personal.db` — Owner tier.** Journal, tasks, notes, posture, and observations — the owner's personal layer. Lives **outside** the git working tree at `~/PKA-Data/personal.db` by default (the location is configurable at install via `setup.py --personal-data-dir`). Never committed. The boundary is architectural — the file isn't in the repo at all — not just disciplinary.
+
+The split is load-bearing for the production direction. When PKA-Template ships to another owner, the operations tier carries the discipline the team accumulated; the projects tier is empty (the new owner's engagements aren't ours); the personal tier is per-owner because the file itself is per-owner. Three databases, three responsibilities, three lifecycles.
 
 **FTS5 full-text search** is enabled on all major text tables. This means you can search across everything — journal entries, knowledge base, briefs, extracted content — without any external search infrastructure.
 
@@ -91,6 +88,14 @@ A fresh install ships with an empty `memory` table — the structure is there, b
 2. **Reflection pass** — the Learning Designer runs a monthly pass against the table (calendar-anchored, with a volume-override when ≥40 new feedback rows have accumulated). The pass proposes ADD / UPDATE / SUPERSEDE / INVALIDATE / NOOP operations against existing memory; the owner approves item-by-item; Leroy applies via `memory_io`. The procedure is documented in `owners_inbox/reflection_pass_procedure.md`. The reflection pass does NOT write to the Intent layer (CLAUDE.md, personas, patterns) — Intent-layer items surface as separate deliverables.
 
 Schema changes (now and in the future) land via the migration framework in `migrations/`. Migration 001 (the `memory` table itself) ships pre-applied; numbered SQL files in `migrations/NNN_<slug>.sql` are how new owners evolve the schema as their use case develops.
+
+### Cross-engagement vs. engagement-specific memory
+
+The memory layer has two homes from v1.2.0 onward. `pka.db.memory` holds *cross-engagement discipline* — user facts, feedback patterns, operational discipline, pedagogy that applies regardless of which engagement the team is working on. `projects.db.memory` holds *engagement-specific facts* — deployment topology, environment quirks, host facts, project-scoped operational discipline that belongs to one engagement and would not generalize.
+
+The Session Open Protocol now runs a two-read shape: a full load of operations-tier memory, plus a small universal-load of projects-tier memory (cross-engagement topology / environment / host_fact rows that apply regardless of which engagement the session touches). When a brief touches a specific engagement, Leroy follows up with a per-project lazy load.
+
+Why the split: when PKA-Template ships to another owner, the operations tier carries the discipline the team accumulated; the projects tier ships empty (the new owner's engagements aren't ours). Without the split, a new owner would inherit the previous owner's deployment topology and environment quirks. With the split, the substrate ships empty and the new owner's projects fill it as they accumulate.
 
 ---
 
@@ -141,6 +146,10 @@ Each pattern file in `patterns/` documents:
 - **Shape** — the steps the work flows through
 - **What protects against failure** — the constraints that make it work
 - **Validated instances** — concrete brief refs + outcomes
+
+Six patterns ship at install (PATTERN-001 through PATTERN-006, all `validated`). One more ships at `proposed` status — PATTERN-007 (domain-engagement-template) — earning `validated` after a first template-instance domain runs through it. See `patterns/README.md` for the family taxonomy and the discipline for proposing new patterns.
+
+A standing protocol layer (`protocols/`) complements patterns. Where patterns codify *what discipline to apply at decision time* (Leroy reads a pattern when commissioning a brief; the engineer reads it when designing a contract), protocols codify *what discipline runs automatically when a trigger fires*. One protocol ships at install: `owner_observability.md`, the four-axis capture-and-review discipline that gives the system a memory for who the owner is. See `protocols/README.md` for the protocols-vs-patterns distinction.
 
 Patterns go through a status ladder: `proposed` → `validated` → `deprecated`. Leroy proposes; the owner approves. The Session Open Protocol surfaces any patterns that reached `validated` status since last session — so you don't miss something the team learned while you were away.
 
@@ -248,6 +257,63 @@ PKA was built for one owner's personal use. Here's what you'll likely want to ch
 8. **Patterns beat re-deriving.** When a shape of work proves itself, codify it.
 9. **Every delivery teaches.** The Learning Layer is non-optional and non-deferred.
 10. **Optionality without commitment.** The schema supports the full architecture; activate only what you need today.
+11. **Three-tier architecture from v1.2.0 onward.** Operations / Projects / Owner. Three databases, three responsibilities, three lifecycles. The system that builds is separated from the things that get built.
+12. **Discipline ships alongside capability.** Every productized tool, persona, pattern, and protocol from v1.2.0 onward carries a demotion criterion. Discipline is what makes the operating model the product.
+13. **Owner privacy is architectural, not disciplinary.** `personal.db` lives outside the repo. The file isn't there to leak.
+
+---
+
+## What's New in v1.2.0
+
+A few v1.2.0 additions warrant their own design-decision notes for owners reading TRAINING.md to understand the system before adapting it.
+
+### Three-tier architecture
+
+Single-tier `pka.db` was the v1.0.0 / v1.1.0 shape. v1.2.0 splits to three tiers (Operations / Projects / Owner) because the production direction requires it: when PKA-Template ships to another owner, you can't ship the previous owner's engagements in the substrate. The split puts the operating discipline in `pka.db` (template-portable), the engagement-specific content in `projects.db` (empty at install), and the owner's personal layer in `personal.db` (outside the repo entirely).
+
+The split is architectural, not disciplinary. The previous discipline ("don't put engagement-specific facts in cross-engagement memory") relied on the team's vigilance. The split removes the failure mode by making the home of each kind of fact different at the schema level.
+
+### Productization discipline
+
+A new `### Productization discipline` subsection in `CLAUDE.md` Strategic Direction binds every future build-vs-defer decision to four checks. The discipline emerged from a real failure mode: tools and personas got built because they *could* be built, not because they earned a build commitment. The four checks force the question:
+
+- **Value-asymmetry** — does this artifact let value happen without the original author or persona in the room, *at the magnitude the persona-in-the-room produces?* The magnitude qualifier is load-bearing — a tool that produces a degraded version of persona-in-the-room value does not pass.
+- **Rule-of-three** — three call sites or three implementations of one design shape. The first earns a single tool; the second earns a shared base. The discipline names which reading applies at build time. A template-baseline lens lets substrate ship before rule-of-three accrues (the substrate must exist before any inheriting instance can even run the discipline).
+- **Demotion criterion** — at build approval, name the condition under which the tool would retire honestly. Event-based criteria are preferred; time-based and usage-based criteria are accepted only when the instrumentation exists to detect the firing.
+- **Vocabulary review** — name the alternative framings the tool's API would suppress. Either accommodate them or record the vocabulary-lock as a flagged note in the demotion criterion.
+
+The discipline also covers tool evolution (additive vs. substantive — substantive evolution is a fresh productization decision), periodic re-evaluation ("would we build this today?" fires at quarterly checkpoint), and the design-shape known-weakness clause (mechanical commonality across implementations may mask semantic divergence — promote to shared base only after a second tier empirically adopts the shape).
+
+Why this matters for adapters: if you ship a custom tool or persona post-v1.2.0, the discipline applies. The seven tools and two personas the template ships with were built before the discipline was codified; some carry retroactive demotion criteria, others will be retrofitted as they evolve. New tools you author go through the full discipline at build time.
+
+### Protocols layer
+
+Some disciplines fire automatically — they're not "what to do when situation X arises" (that's a pattern) but "what runs when trigger X lands" (that's a protocol). The first protocol shipping at install is `owner_observability` — the four-axis capture-and-review discipline. Future protocols you adopt (or template-instance owners adopt later) go through the same Intent-layer flow: Leroy proposes; you approve; the protocol moves through `proposed` → `active` → `retired`. Every protocol carries a demotion criterion at adoption so it can retire honestly.
+
+### Owner observability
+
+`personal.db` gains four observation tables that capture the four observer/subject pairings the team needs to learn the principal it serves:
+
+- **`owner_posture`** — your framing-and-posture about PKA over time
+- **`orchestrator_observations`** — Leroy's reading of your decision style, framing tendencies, trust patterns (pending-review on write; you ratify before they go active)
+- **`owner_observations`** — your observations about Leroy or any team member (active on write — your authority is the gate)
+- **`team_observations`** — team members' observations about each other and Leroy (pending-review on write; you ratify)
+
+The asymmetric trust shape — owner-authored rows go active; orchestrator/team-authored rows wait for your ratification — is load-bearing. It makes the relationship transparent and correctable rather than surveillance-shaped. The discipline is owner-private by file boundary: `personal.db` lives outside the repo at the configurable install location and is never committed.
+
+### Hooks layer
+
+`hooks/pka_guard.py` is the first hook in PKA. It's a no-op until you register it in `~/.claude/settings.json` (the README shows the snippet). When registered, it surfaces foreign Claude Code sessions on open (so concurrent sessions on the same repo are visible), blocks brief-ref numbering collisions with next-free suggestion, and blocks accidental destructive operations against team_comms brief files the current session hasn't claimed. The hook is local-only — no network, runs as your user, ~40ms median latency on PreToolUse.
+
+The hook's demotion criterion is event-based: it retires when a native cross-session-coordination subsystem replaces it. Until then, it's the durable safety net for sessions running in parallel.
+
+### Per-brief token economics
+
+A new `economics` table captures tokens used, tool uses, duration, cache hit rate, and total cost in USD per deliverable. The `model_pricing` table ships pre-seeded with current Anthropic price rows and preserves pricing snapshots at the time of each economics row — historical rows stay interpretable even after future pricing changes. The economics layer is the substrate for cost-awareness over time. It does not block deliveries; if pricing data isn't available at deliverable close, the row inserts NULL costs and a follow-up pass can backfill.
+
+### Tools catalog
+
+`TOOLS.md` documents every productized tool with its demotion criterion (mirrored from the tool's top-of-file docstring). Seven tools ship in v1.2.0; new tools you productize join the catalog per the discipline in `CLAUDE.md`. The catalog's "How to add a new tool" section walks through the productization-discipline procedure.
 
 ---
 

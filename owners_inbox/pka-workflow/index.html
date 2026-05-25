@@ -1180,7 +1180,7 @@ flowchart TD
     <div class="diagram-block">
       <div class="diagram-label">2a</div>
       <h2>Folder Structure</h2>
-      <p class="diagram-caption">The PKA filesystem layout — each directory has a single, defined purpose and maps directly to a role or workflow stage. PKA-Data lives outside the git working tree.</p>
+      <p class="diagram-caption">The PKA filesystem layout — each directory has a single, defined purpose and maps directly to a role or workflow stage. From v1.2.0 onward the data layer is three-tier: <code>pka.db</code> (Operations) and <code>projects.db</code> (Projects) live inside the git working tree at the PKA root; <code>personal.db</code> (Owner) lives in a configurable location outside the git working tree (default <code>~/PKA-Data/</code>) and is never committed. <code>patterns/</code> codifies the team's validated operational templates; <code>protocols/</code> codifies standing dispatch-layer disciplines (e.g., always-on review fixtures).</p>
       <div class="diagram-wrap">
         <div class="mermaid">
 flowchart LR
@@ -1195,13 +1195,16 @@ flowchart LR
   ROOT --> TCOMMS["📂 team_comms/\nTransient brief files\nLeroy writes · team reads · file moved to archive/ on completion"]
   ROOT --> OINBOX["📂 owners_inbox/\nDeliverables + reference tools"]
   ROOT --> CASES["📂 case_studies/\nLearning Layer case writeups\nAAR-driven, indexed in case_studies table"]
+  ROOT --> PATTERNS["📂 patterns/\nValidated operational templates\nproposed → validated → deprecated"]
+  ROOT --> PROTOCOLS["📂 protocols/\nStanding dispatch-layer disciplines\nproposed → active → retired"]
   ROOT --> TDIR["📂 team/\nPersona profile files\nOne file per team member"]
-  ROOT --> DBFILE["🗄️ pka.db\nSQLite + FTS5 database\nPermanent operational record"]
+  ROOT --> DBFILE["🗄️ pka.db\nSQLite + FTS5 database\nOperations tier — briefs, deliverables, feedback,\npatterns, memory, model routing, economics"]
+  ROOT --> PROJECTSDB["🗄️ projects.db\nSQLite + FTS5 database\nProjects tier — assets, content, projects,\nengagement-scoped memory"]
 
   OINBOX --> VIEWER["📂 pka-viewer/\nAsset + knowledge browser"]
   OINBOX --> WORKFLOW["📂 pka-workflow/\nThis document"]
 
-  PKADATA --> PERSONALDB["🗄️ personal.db\nOwner's personal layer\nowner_journal · owner_tasks · owner_notes"]
+  PKADATA --> PERSONALDB["🗄️ personal.db\nOwner tier — owner_journal · owner_tasks · owner_notes\n+ owner_posture · owner_observations\n+ orchestrator_observations · team_observations\nLocation configurable at install (default ~/PKA-Data/)"]
         </div>
       </div>
     </div>
@@ -1251,29 +1254,10 @@ flowchart TD
     <div class="diagram-block">
       <div class="diagram-label">2c</div>
       <h2>Database Schema</h2>
-      <p class="diagram-caption">The full pka.db entity-relationship diagram — assets feed content, briefs produce deliverables which collect feedback and AAR-driven case studies. Journal, knowledge, backlog, and settings are standalone. Model routing tables (<code>model_providers</code>, <code>task_type_models</code>) govern per-brief model tier assignment; <code>team_members</code> and <code>feedback</code> both carry FK references to <code>model_providers</code>. <code>memory</code> is the PKA-native durable memory layer with bi-temporal state and an FTS5 mirror, landed via <code>migrations/001_memory_table.sql</code> (pre-applied at install).</p>
+      <p class="diagram-caption">The full pka.db entity-relationship diagram — briefs produce deliverables which collect feedback and AAR-driven case studies. Journal, knowledge, backlog, and settings are standalone. Model routing tables (<code>model_providers</code>, <code>task_type_models</code>) govern per-brief model tier assignment; <code>team_members</code> and <code>feedback</code> both carry FK references to <code>model_providers</code>. <code>memory</code> is the PKA-native durable memory layer with bi-temporal state and an FTS5 mirror, landed via <code>migrations/001_memory_table.sql</code> (pre-applied at install). Updated v1.2.0: <code>assets</code> and <code>content</code> moved out to projects.db (see 2c-c); <code>briefs</code> and <code>deliverables</code> gain <code>source_material</code> columns; <code>memory.scope</code> enum is canonical owner-neutral (<code>global|owner_only|team_member:slug</code>); <code>feedback</code> gains <code>rater</code>; new <code>economics</code> and <code>model_pricing</code> tables track per-brief token cost.</p>
       <div class="diagram-wrap">
         <div class="mermaid">
 erDiagram
-
-  assets {
-    int id PK
-    string filename
-    string path
-    string type
-    int size_bytes
-    string date_added
-    string status
-    string tags
-    string notes
-  }
-
-  content {
-    int id PK
-    int asset_id FK
-    string content_type
-    string body
-  }
 
   briefs {
     int id PK
@@ -1285,6 +1269,8 @@ erDiagram
     string status
     string created_at
     string completed_at
+    string source_material
+    string project_slug
   }
 
   deliverables {
@@ -1296,6 +1282,7 @@ erDiagram
     int tokens_used
     int tool_uses
     int duration_ms
+    string source_material
   }
 
   feedback {
@@ -1308,6 +1295,7 @@ erDiagram
     string model
     string created_at
     int ai_model_provider_id FK
+    string rater
   }
 
   journal {
@@ -1383,7 +1371,7 @@ erDiagram
     string type
     string title
     string body
-    string scope
+    string scope "global|owner_only|team_member:slug"
     string source_ref
     string status
     string superseded_by
@@ -1400,6 +1388,31 @@ erDiagram
   memory_fts {
     string title
     string body
+  }
+
+  economics {
+    int id PK
+    int deliverable_id FK
+    int brief_id FK
+    string model_id
+    int input_tokens
+    int output_tokens
+    int cache_creation_tokens
+    int cache_read_tokens
+    real cache_hit_rate
+    real cost_usd
+    string captured_at
+  }
+
+  model_pricing {
+    int id PK
+    string model_id UK
+    real input_per_mtok_usd
+    real output_per_mtok_usd
+    real cache_write_per_mtok_usd
+    real cache_read_per_mtok_usd
+    string effective_from
+    string notes
   }
 
   model_providers {
@@ -1436,10 +1449,12 @@ erDiagram
     int model_provider_id FK
   }
 
-  assets ||--o{ content : "extracted into"
   briefs ||--o{ deliverables : "produces"
   deliverables ||--o{ feedback : "rated by"
   deliverables ||--o{ case_studies : "AAR'd into"
+  deliverables ||--o| economics : "token cost"
+  briefs ||--o{ economics : "totals across deliverables"
+  economics }o--|| model_pricing : "pricing snapshot"
   patterns ||--|| patterns_fts : "FTS indexed"
   memory ||--|| memory_fts : "FTS indexed"
   model_providers |o--o| model_providers : "fallback"
@@ -1454,7 +1469,7 @@ erDiagram
     <div class="diagram-block">
       <div class="diagram-label">2c-b</div>
       <h2>personal.db Schema</h2>
-      <p class="diagram-caption">The owner's personal data layer — stored in ~/Documents/PKA-Data/personal.db, outside the git repo. Three standalone tables with no FK relationships to pka.db.</p>
+      <p class="diagram-caption">The owner's personal data layer — stored at the location recorded in <code>pka.db.settings.personal_db_path</code> (default <code>~/PKA-Data/personal.db</code>, configurable at install via <code>setup.py --personal-data-dir</code>), outside the git working tree. Eight tables: three working surfaces (journal/tasks/notes) plus four observability tables landed in v1.2.0 — <code>owner_posture</code> + <code>owner_observations</code> hold the owner's own self-state and notes about the team; <code>orchestrator_observations</code> hold the orchestrator's notes about the owner or team members; <code>team_observations</code> hold inter-team-member notes. Canonical owner-neutral table names from day 1. No enforced FK relationships to pka.db — cross-DB references travel as application-layer strings (e.g. <code>pka.memory.source_ref</code> = <code>'orchestrator_observations:5'</code>). <code>team_observations.observer</code> is open TEXT, soft-validated by the application against active <code>pka.db.team_members</code> slugs (SQLite does not enforce FKs across attached databases).</p>
       <div class="diagram-wrap">
         <div class="mermaid">
 erDiagram
@@ -1491,6 +1506,148 @@ erDiagram
     int private
     string created_at
   }
+
+  owner_posture {
+    int id PK
+    string posture_type
+    string body
+    string captured_by "owner|orchestrator"
+    string captured_at
+    string valid_from
+    string valid_to
+    string status "active|superseded|promoted-to-memory|archived"
+    string source_session
+    string notes
+    int superseded_by FK
+    int promoted_to_memory_id
+  }
+
+  owner_observations {
+    int id PK
+    string subject
+    string observation_type
+    string body
+    string evidence
+    string captured_at
+    string valid_from
+    string valid_to
+    string status "active|superseded|archived|promoted-to-memory"
+    string notes
+    string source_session
+    int superseded_by FK
+    int promoted_to_memory_id
+  }
+
+  orchestrator_observations {
+    int id PK
+    string subject "owner|team_member_slug"
+    string observation_type
+    string body
+    string evidence
+    string captured_at
+    string valid_from
+    string valid_to
+    string status "pending-review|active|corrected|superseded|archived|promoted-to-memory"
+    string levi_response
+    string source_session
+    int superseded_by FK
+    int promoted_to_memory_id
+  }
+
+  team_observations {
+    int id PK
+    string observer "open TEXT — soft-validated lowercase slug"
+    string subject "orchestrator|owner|team_member_slug"
+    string observation_type
+    string body
+    string evidence
+    string captured_at
+    string valid_from
+    string valid_to
+    string status "pending-review|active|corrected|superseded|archived|promoted-to-memory"
+    string levi_response
+    int source_deliverable_id
+    string source_session
+    int superseded_by FK
+    int promoted_to_memory_id
+  }
+        </div>
+      </div>
+    </div>
+
+    <!-- 2c-c — projects.db Schema -->
+    <div class="diagram-block">
+      <div class="diagram-label">2c-c</div>
+      <h2>projects.db Schema</h2>
+      <p class="diagram-caption">The projects-tier data layer — stored alongside pka.db in the PKA root, landed in v1.2.0. Holds engagement-specific content (<code>assets</code> + <code>content</code>, moved out of pka.db) and an engagement-aware durable memory layer (<code>projects.memory</code>) scoped per engagement via the <code>projects</code> registry. The split keeps pka.db focused on Operations-tier substrate (briefs, deliverables, feedback, patterns, the team's own memory) and frees the projects-tier to hold per-engagement context that comes and goes with the engagement. The <code>project_slug</code> column on <code>pka.briefs</code> is the cross-tier pointer; cross-tier joins go through <code>ATTACH DATABASE 'projects.db' AS projects</code>. FK enforcement does NOT cross attached databases — application-layer integrity discipline applies.</p>
+      <div class="diagram-wrap">
+        <div class="mermaid">
+erDiagram
+
+  projects {
+    string slug PK
+    string name
+    string body
+    string status "active|paused|completed|archived"
+    string created_at
+    string updated_at
+  }
+
+  assets {
+    int id PK
+    string filename
+    string path
+    string type
+    int size_bytes
+    string date_added
+    string status
+    string tags
+    string notes
+    string project_slug FK
+  }
+
+  content {
+    int id PK
+    int asset_id FK
+    string content_type
+    string body
+  }
+
+  content_fts {
+    string body
+  }
+
+  memory {
+    int id PK
+    string slug UK
+    string type
+    string title
+    string body
+    string project_slug FK
+    string scope "project|environment|host_fact|engagement_topology"
+    string source_ref
+    string status
+    string superseded_by
+    string valid_from
+    string valid_to
+    string ingested_at
+    string approved_by
+    string provenance
+    string tags
+    string created_at
+    string updated_at
+  }
+
+  memory_fts {
+    string title
+    string body
+  }
+
+  projects ||--o{ assets : "groups"
+  projects ||--o{ memory : "scopes"
+  assets ||--o{ content : "extracted into"
+  content ||--|| content_fts : "FTS indexed"
+  memory ||--|| memory_fts : "FTS indexed"
         </div>
       </div>
     </div>
@@ -1565,14 +1722,14 @@ flowchart LR
       <button class="table-pill" data-table="backlog" data-db="pka" onclick="selectTable('backlog','pka',this)">
         backlog <span class="db-badge">pka</span>
       </button>
-      <button class="table-pill" data-table="levi_journal" data-db="personal" onclick="selectTable('levi_journal','personal',this)">
-        levi_journal <span class="db-badge">personal</span>
+      <button class="table-pill" data-table="owner_journal" data-db="personal" onclick="selectTable('owner_journal','personal',this)">
+        owner_journal <span class="db-badge">personal</span>
       </button>
-      <button class="table-pill" data-table="levi_tasks" data-db="personal" onclick="selectTable('levi_tasks','personal',this)">
-        levi_tasks <span class="db-badge">personal</span>
+      <button class="table-pill" data-table="owner_tasks" data-db="personal" onclick="selectTable('owner_tasks','personal',this)">
+        owner_tasks <span class="db-badge">personal</span>
       </button>
-      <button class="table-pill" data-table="levi_notes" data-db="personal" onclick="selectTable('levi_notes','personal',this)">
-        levi_notes <span class="db-badge">personal</span>
+      <button class="table-pill" data-table="owner_notes" data-db="personal" onclick="selectTable('owner_notes','personal',this)">
+        owner_notes <span class="db-badge">personal</span>
       </button>
     </div>
 
@@ -1622,71 +1779,71 @@ flowchart LR
       <div class="records-list" id="list-backlog"></div>
     </div>
 
-    <div id="panel-levi_journal" class="table-panel">
+    <div id="panel-owner_journal" class="table-panel">
       <div class="table-panel-header">
-        <div><span style="font-size:16px;font-weight:600;color:var(--text-primary)">levi_journal</span> <span class="record-count" id="count-levi_journal"></span></div>
-        <button class="btn-new-record" onclick="openNewForm('levi_journal')" id="new-btn-levi_journal">+ New Record</button>
+        <div><span style="font-size:16px;font-weight:600;color:var(--text-primary)">owner_journal</span> <span class="record-count" id="count-owner_journal"></span></div>
+        <button class="btn-new-record" onclick="openNewForm('owner_journal')" id="new-btn-owner_journal">+ New Record</button>
       </div>
-      <div class="new-record-form" id="new-form-levi_journal">
+      <div class="new-record-form" id="new-form-owner_journal">
         <h4>New journal entry</h4>
-        <div class="form-row"><label>Date</label><input type="date" id="nf-levi_journal-date" /></div>
-        <div class="form-row"><label>Title</label><input type="text" id="nf-levi_journal-title" /></div>
-        <div class="form-row"><label>Body</label><textarea id="nf-levi_journal-body" style="min-height:130px"></textarea></div>
-        <div class="form-row"><label>Tags</label><input type="text" id="nf-levi_journal-tags" /></div>
-        <div class="form-row"><label>Mood</label><input type="text" id="nf-levi_journal-mood" /></div>
-        <div class="form-row-check"><input type="checkbox" id="nf-levi_journal-private" /><label for="nf-levi_journal-private">Private (team cannot read)</label></div>
+        <div class="form-row"><label>Date</label><input type="date" id="nf-owner_journal-date" /></div>
+        <div class="form-row"><label>Title</label><input type="text" id="nf-owner_journal-title" /></div>
+        <div class="form-row"><label>Body</label><textarea id="nf-owner_journal-body" style="min-height:130px"></textarea></div>
+        <div class="form-row"><label>Tags</label><input type="text" id="nf-owner_journal-tags" /></div>
+        <div class="form-row"><label>Mood</label><input type="text" id="nf-owner_journal-mood" /></div>
+        <div class="form-row-check"><input type="checkbox" id="nf-owner_journal-private" /><label for="nf-owner_journal-private">Private (team cannot read)</label></div>
         <div class="form-actions">
-          <button class="btn-save-record" onclick="saveNewRecord('levi_journal')">Save</button>
-          <button class="btn-cancel-record" onclick="closeNewForm('levi_journal')">Cancel</button>
+          <button class="btn-save-record" onclick="saveNewRecord('owner_journal')">Save</button>
+          <button class="btn-cancel-record" onclick="closeNewForm('owner_journal')">Cancel</button>
         </div>
       </div>
-      <div class="records-list" id="list-levi_journal"></div>
+      <div class="records-list" id="list-owner_journal"></div>
     </div>
 
-    <div id="panel-levi_tasks" class="table-panel">
+    <div id="panel-owner_tasks" class="table-panel">
       <div class="table-panel-header">
-        <div><span style="font-size:16px;font-weight:600;color:var(--text-primary)">levi_tasks</span> <span class="record-count" id="count-levi_tasks"></span></div>
-        <button class="btn-new-record" onclick="openNewForm('levi_tasks')" id="new-btn-levi_tasks">+ New Record</button>
+        <div><span style="font-size:16px;font-weight:600;color:var(--text-primary)">owner_tasks</span> <span class="record-count" id="count-owner_tasks"></span></div>
+        <button class="btn-new-record" onclick="openNewForm('owner_tasks')" id="new-btn-owner_tasks">+ New Record</button>
       </div>
-      <div class="new-record-form" id="new-form-levi_tasks">
+      <div class="new-record-form" id="new-form-owner_tasks">
         <h4>New task</h4>
-        <div class="form-row"><label>Title</label><input type="text" id="nf-levi_tasks-title" /></div>
-        <div class="form-row"><label>Body / Notes</label><textarea id="nf-levi_tasks-body"></textarea></div>
+        <div class="form-row"><label>Title</label><input type="text" id="nf-owner_tasks-title" /></div>
+        <div class="form-row"><label>Body / Notes</label><textarea id="nf-owner_tasks-body"></textarea></div>
         <div class="form-row"><label>Status</label>
-          <select id="nf-levi_tasks-status"><option value="open" selected>open</option><option value="in_progress">in_progress</option><option value="complete">complete</option><option value="deferred">deferred</option></select>
+          <select id="nf-owner_tasks-status"><option value="open" selected>open</option><option value="in_progress">in_progress</option><option value="complete">complete</option><option value="deferred">deferred</option></select>
         </div>
         <div class="form-row"><label>Priority (1=high, 3=low)</label>
-          <select id="nf-levi_tasks-priority"><option value="1">1 — High</option><option value="2" selected>2 — Medium</option><option value="3">3 — Low</option></select>
+          <select id="nf-owner_tasks-priority"><option value="1">1 — High</option><option value="2" selected>2 — Medium</option><option value="3">3 — Low</option></select>
         </div>
-        <div class="form-row"><label>Due Date</label><input type="date" id="nf-levi_tasks-due_date" /></div>
-        <div class="form-row"><label>Tags</label><input type="text" id="nf-levi_tasks-tags" /></div>
-        <div class="form-row-check"><input type="checkbox" id="nf-levi_tasks-private" /><label for="nf-levi_tasks-private">Private</label></div>
+        <div class="form-row"><label>Due Date</label><input type="date" id="nf-owner_tasks-due_date" /></div>
+        <div class="form-row"><label>Tags</label><input type="text" id="nf-owner_tasks-tags" /></div>
+        <div class="form-row-check"><input type="checkbox" id="nf-owner_tasks-private" /><label for="nf-owner_tasks-private">Private</label></div>
         <div class="form-actions">
-          <button class="btn-save-record" onclick="saveNewRecord('levi_tasks')">Save</button>
-          <button class="btn-cancel-record" onclick="closeNewForm('levi_tasks')">Cancel</button>
+          <button class="btn-save-record" onclick="saveNewRecord('owner_tasks')">Save</button>
+          <button class="btn-cancel-record" onclick="closeNewForm('owner_tasks')">Cancel</button>
         </div>
       </div>
-      <div class="records-list" id="list-levi_tasks"></div>
+      <div class="records-list" id="list-owner_tasks"></div>
     </div>
 
-    <div id="panel-levi_notes" class="table-panel">
+    <div id="panel-owner_notes" class="table-panel">
       <div class="table-panel-header">
-        <div><span style="font-size:16px;font-weight:600;color:var(--text-primary)">levi_notes</span> <span class="record-count" id="count-levi_notes"></span></div>
-        <button class="btn-new-record" onclick="openNewForm('levi_notes')" id="new-btn-levi_notes">+ New Record</button>
+        <div><span style="font-size:16px;font-weight:600;color:var(--text-primary)">owner_notes</span> <span class="record-count" id="count-owner_notes"></span></div>
+        <button class="btn-new-record" onclick="openNewForm('owner_notes')" id="new-btn-owner_notes">+ New Record</button>
       </div>
-      <div class="new-record-form" id="new-form-levi_notes">
+      <div class="new-record-form" id="new-form-owner_notes">
         <h4>New note</h4>
-        <div class="form-row"><label>Title</label><input type="text" id="nf-levi_notes-title" /></div>
-        <div class="form-row"><label>Body</label><textarea id="nf-levi_notes-body"></textarea></div>
-        <div class="form-row"><label>Source</label><input type="text" id="nf-levi_notes-source" /></div>
-        <div class="form-row"><label>Tags</label><input type="text" id="nf-levi_notes-tags" /></div>
-        <div class="form-row-check"><input type="checkbox" id="nf-levi_notes-private" /><label for="nf-levi_notes-private">Private</label></div>
+        <div class="form-row"><label>Title</label><input type="text" id="nf-owner_notes-title" /></div>
+        <div class="form-row"><label>Body</label><textarea id="nf-owner_notes-body"></textarea></div>
+        <div class="form-row"><label>Source</label><input type="text" id="nf-owner_notes-source" /></div>
+        <div class="form-row"><label>Tags</label><input type="text" id="nf-owner_notes-tags" /></div>
+        <div class="form-row-check"><input type="checkbox" id="nf-owner_notes-private" /><label for="nf-owner_notes-private">Private</label></div>
         <div class="form-actions">
-          <button class="btn-save-record" onclick="saveNewRecord('levi_notes')">Save</button>
-          <button class="btn-cancel-record" onclick="closeNewForm('levi_notes')">Cancel</button>
+          <button class="btn-save-record" onclick="saveNewRecord('owner_notes')">Save</button>
+          <button class="btn-cancel-record" onclick="closeNewForm('owner_notes')">Cancel</button>
         </div>
       </div>
-      <div class="records-list" id="list-levi_notes"></div>
+      <div class="records-list" id="list-owner_notes"></div>
     </div>
 
   </div><!-- /tab-data -->
@@ -2094,7 +2251,7 @@ ${edgesDbWrites}
 
     const TABLE_DB_MAP = {
       knowledge: 'pka', backlog: 'pka',
-      levi_journal: 'personal', levi_tasks: 'personal', levi_notes: 'personal'
+      owner_journal: 'personal', owner_tasks: 'personal', owner_notes: 'personal'
     };
 
     function selectTable(tableName, dbKey, btn) {
@@ -2148,8 +2305,8 @@ ${edgesDbWrites}
 
     function getRecordMeta(tableName, row) {
       if (tableName === 'backlog') return `${row.status || ''} · p${row.priority || ''}`;
-      if (tableName === 'levi_journal') return row.date || '';
-      if (tableName === 'levi_tasks') return row.status || '';
+      if (tableName === 'owner_journal') return row.date || '';
+      if (tableName === 'owner_tasks') return row.status || '';
       if (row.tags) return row.tags;
       return '';
     }
@@ -2202,14 +2359,14 @@ ${edgesDbWrites}
           </select></div>
         <div class="form-row"><label>Tags</label><input type="text" id="ef-${tableName}-${row.id}-tags" value="${v(row.tags)}" /></div>
         <div class="form-row"><label>Source</label><input type="text" id="ef-${tableName}-${row.id}-source" value="${v(row.source)}" /></div>`;
-      if (tableName === 'levi_journal') return `
+      if (tableName === 'owner_journal') return `
         <div class="form-row"><label>Date</label><input type="date" id="ef-${tableName}-${row.id}-date" value="${v(row.date)}" /></div>
         <div class="form-row"><label>Title</label><input type="text" id="ef-${tableName}-${row.id}-title" value="${v(row.title)}" /></div>
         <div class="form-row"><label>Body</label><textarea id="ef-${tableName}-${row.id}-body" style="min-height:130px">${t(row.body)}</textarea></div>
         <div class="form-row"><label>Tags</label><input type="text" id="ef-${tableName}-${row.id}-tags" value="${v(row.tags)}" /></div>
         <div class="form-row"><label>Mood</label><input type="text" id="ef-${tableName}-${row.id}-mood" value="${v(row.mood)}" /></div>
         <div class="form-row-check"><input type="checkbox" id="ef-${tableName}-${row.id}-private" ${row.private?'checked':''}/><label for="ef-${tableName}-${row.id}-private">Private</label></div>`;
-      if (tableName === 'levi_tasks') return `
+      if (tableName === 'owner_tasks') return `
         <div class="form-row"><label>Title</label><input type="text" id="ef-${tableName}-${row.id}-title" value="${v(row.title)}" /></div>
         <div class="form-row"><label>Body</label><textarea id="ef-${tableName}-${row.id}-body">${t(row.body)}</textarea></div>
         <div class="form-row"><label>Status</label>
@@ -2225,7 +2382,7 @@ ${edgesDbWrites}
         <div class="form-row"><label>Due Date</label><input type="date" id="ef-${tableName}-${row.id}-due_date" value="${v(row.due_date)}" /></div>
         <div class="form-row"><label>Tags</label><input type="text" id="ef-${tableName}-${row.id}-tags" value="${v(row.tags)}" /></div>
         <div class="form-row-check"><input type="checkbox" id="ef-${tableName}-${row.id}-private" ${row.private?'checked':''}/><label for="ef-${tableName}-${row.id}-private">Private</label></div>`;
-      if (tableName === 'levi_notes') return `
+      if (tableName === 'owner_notes') return `
         <div class="form-row"><label>Title</label><input type="text" id="ef-${tableName}-${row.id}-title" value="${v(row.title)}" /></div>
         <div class="form-row"><label>Body</label><textarea id="ef-${tableName}-${row.id}-body">${t(row.body)}</textarea></div>
         <div class="form-row"><label>Source</label><input type="text" id="ef-${tableName}-${row.id}-source" value="${v(row.source)}" /></div>
@@ -2267,14 +2424,14 @@ ${edgesDbWrites}
         } else if (tableName === 'backlog') {
           db.run(`UPDATE backlog SET ref=?, title=?, body=?, priority=?, status=?, tags=?, source=?, updated_at=? WHERE id=?`,
             [p('ref'), p('title'), p('body'), p('priority'), p('status'), p('tags'), p('source'), now, id]);
-        } else if (tableName === 'levi_journal') {
-          db.run(`UPDATE levi_journal SET date=?, title=?, body=?, tags=?, mood=?, private=?, updated_at=? WHERE id=?`,
+        } else if (tableName === 'owner_journal') {
+          db.run(`UPDATE owner_journal SET date=?, title=?, body=?, tags=?, mood=?, private=?, updated_at=? WHERE id=?`,
             [p('date'), p('title'), p('body'), p('tags'), p('mood'), p('private'), now, id]);
-        } else if (tableName === 'levi_tasks') {
-          db.run(`UPDATE levi_tasks SET title=?, body=?, status=?, priority=?, due_date=?, tags=?, private=?, updated_at=? WHERE id=?`,
+        } else if (tableName === 'owner_tasks') {
+          db.run(`UPDATE owner_tasks SET title=?, body=?, status=?, priority=?, due_date=?, tags=?, private=?, updated_at=? WHERE id=?`,
             [p('title'), p('body'), p('status'), p('priority'), p('due_date'), p('tags'), p('private'), now, id]);
-        } else if (tableName === 'levi_notes') {
-          db.run(`UPDATE levi_notes SET title=?, body=?, source=?, tags=?, private=?, updated_at=? WHERE id=?`,
+        } else if (tableName === 'owner_notes') {
+          db.run(`UPDATE owner_notes SET title=?, body=?, source=?, tags=?, private=?, updated_at=? WHERE id=?`,
             [p('title'), p('body'), p('source'), p('tags'), p('private'), now, id]);
         }
         markUnsaved(dbKey);
@@ -2320,14 +2477,14 @@ ${edgesDbWrites}
         } else if (tableName === 'backlog') {
           db.run(`INSERT INTO backlog (ref, title, body, priority, status, tags, source, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?)`,
             [p('ref'), p('title'), p('body'), p('priority'), p('status'), p('tags'), p('source'), now, now]);
-        } else if (tableName === 'levi_journal') {
-          db.run(`INSERT INTO levi_journal (date, title, body, tags, mood, private, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?)`,
+        } else if (tableName === 'owner_journal') {
+          db.run(`INSERT INTO owner_journal (date, title, body, tags, mood, private, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?)`,
             [p('date'), p('title'), p('body'), p('tags'), p('mood'), p('private'), now, now]);
-        } else if (tableName === 'levi_tasks') {
-          db.run(`INSERT INTO levi_tasks (title, body, status, priority, due_date, tags, private, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?)`,
+        } else if (tableName === 'owner_tasks') {
+          db.run(`INSERT INTO owner_tasks (title, body, status, priority, due_date, tags, private, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?)`,
             [p('title'), p('body'), p('status'), p('priority'), p('due_date'), p('tags'), p('private'), now, now]);
-        } else if (tableName === 'levi_notes') {
-          db.run(`INSERT INTO levi_notes (title, body, source, tags, private, created_at, updated_at) VALUES (?,?,?,?,?,?,?)`,
+        } else if (tableName === 'owner_notes') {
+          db.run(`INSERT INTO owner_notes (title, body, source, tags, private, created_at, updated_at) VALUES (?,?,?,?,?,?,?)`,
             [p('title'), p('body'), p('source'), p('tags'), p('private'), now, now]);
         }
         markUnsaved(dbKey);
@@ -2451,7 +2608,7 @@ ${edgesDbWrites}
 
 **Model routing is built in from the start.** Leroy routes work to Opus 4.7 / Sonnet 4.6 / Haiku 4.5 based on the character of the task. Multi-provider routing is architecturally ready; it activates with a single settings flip.
 
-**Personal data stays private by design.** personal.db lives outside the repo at ~/Documents/PKA-Data/personal.db, never committed, never mixed with operational data. The boundary is architectural, not disciplinary.`; CHANGELOG and VERSION in PKA root.)`;
+**Personal data stays private by design.** personal.db lives outside the repo at ~/Documents/PKA-Data/personal.db, never committed, never mixed with operational data. The boundary is architectural, not disciplinary.`;
 
     function parseChangelog(raw) {
       // Split on version headers: ## [x.y.z] — date
