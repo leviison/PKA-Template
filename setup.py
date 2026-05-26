@@ -724,6 +724,16 @@ def create_pka_db():
          'proposed', 'Leroy', None,
          '[]',
          '2026-05-25T00:00:00', None),
+        ('PATTERN-011', 'probe-validity-discipline',
+         'Probe-Validity Discipline',
+         'proposed', 'Leroy', None,
+         '[]',
+         '2026-05-25T00:00:00', None),
+        ('PATTERN-013', 'scope-validity-discipline',
+         'Scope-Validity Discipline',
+         'proposed', 'Leroy', None,
+         '[]',
+         '2026-05-25T00:00:00', None),
     ]
     db.executemany(
         """INSERT OR IGNORE INTO patterns

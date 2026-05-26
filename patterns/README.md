@@ -11,7 +11,7 @@
 | Status | Count | Refs |
 |---|---|---|
 | `validated` | 6 | PATTERN-001, 002, 003, 004, 005, 006 |
-| `proposed` | 1 | PATTERN-007 |
+| `proposed` | 3 | PATTERN-007, 011, 013 |
 | `deprecated` | 0 | — |
 
 Status ladder: `proposed` (one instance observed, awaiting approval) → `validated` (approved with at least one demonstrated instance) → `deprecated` (superseded or no longer applicable). Leroy proposes; the owner approves.
@@ -54,6 +54,15 @@ Not all patterns generalise across the team's work. Some are domain-specific arc
 
 These are catalogued for completeness but are referenced from their domain rather than from the cross-team meta-instincts.
 
+### Family 5 — *Discipline-application discipline* (meta-disciplines on the disciplines themselves)
+
+When the team reaches for a pattern, protocol, or discipline, the act of reaching is itself subject to discipline. Family 5 patterns codify the meta-disciplines: *did the discipline honestly answer? did it apply at the right scope?* These patterns operate one level above the disciplines they govern — they fire when a discipline is named, not when a brief is shaped.
+
+- **[[probe-validity-discipline]]** (PATTERN-011, proposed) — When a probe returns a clean verdict, the discipline that fires *on the probe*: audit the probe against four question-frames, layer it with structurally different probes, treat confirmation-affirming results with extra suspicion. Promotion gated on first template-instance firing.
+- **[[scope-validity-discipline]]** (PATTERN-013, proposed) — When a discipline is applied, the discipline that fires *on the scope of the application*: name the discipline's proper scope, name the actual application scope, and close the gap if they differ. Sibling pattern to PATTERN-011. Promotion gated on first template-instance firing.
+
+Diagnostic before reaching for this family: *is a discipline being named in this work?* If yes — probe-validity, audit-validity, verification-validity, preserve-prod, any other named discipline — the family-5 patterns ask the second-order question on top.
+
 ---
 
 ## Proposed patterns
@@ -61,6 +70,8 @@ These are catalogued for completeness but are referenced from their domain rathe
 Patterns shipped at `proposed` status pending first validated-instance evidence in template-instance use. A template-instance owner who runs an engagement against one of these patterns and finds it usable should record the instance in the pattern's *Validated instance(s)* section and promote to `validated`.
 
 - **[[domain-engagement-template]]** (PATTERN-007, proposed) — Owner-commissioned, domain-bounded, position-taking engagement workflow. Asset intake → parallel extraction → framing memo → optional pre-meeting prep → speaker mapping → position-taking deliverable → re-underwriting contract. The pattern names the workflow shape; the domain methodology (investment thesis, security audit, consulting recommendation, hire eval, etc.) fills the position-taking slot. Promotion to `validated` requires a first template-instance run.
+- **[[probe-validity-discipline]]** (PATTERN-011, proposed) — Discipline applied *on the probe* when a probe returns a clean verdict the prober wants to trust. Five-step shape (probe → four-frame audit → layer-the-probe → divergence-means-bad-probe → only-then-act). Sibling to PATTERN-013. Promotion to `validated` requires a first template-instance firing.
+- **[[scope-validity-discipline]]** (PATTERN-013, proposed) — Discipline applied *on the scope* when a discipline is named in a brief or deliverable. Five-step shape (name discipline → name proper scope → name application scope → close the gap → capture scope in the artifact). Sibling to PATTERN-011. Promotion to `validated` requires a first template-instance firing.
 
 ---
 

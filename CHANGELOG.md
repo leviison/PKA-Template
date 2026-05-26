@@ -19,6 +19,20 @@ Append a new entry at the **top** of the releases section each session close. Us
 
 ## Releases
 
+## [1.2.1] — 2026-05-25
+
+### Added
+
+**Two new patterns ship at `proposed` status — a discipline-application family.** PATTERN-011 (probe-validity-discipline) codifies the discipline that fires *on the probe* when a probe returns a clean verdict the prober wants to trust: a four-frame audit (environment match, path traversal, success-condition match, state-not-under-the-probe), structurally different layering, and the principle that probe-result-affirming-my-hypothesis warrants *extra* suspicion. PATTERN-013 (scope-validity-discipline) codifies the discipline that fires *on the scope of a discipline's application*: name the discipline being applied, name its proper scope, name the actual application scope, close the gap if they differ. The two patterns are siblings — PATTERN-011 protects against bad-probe-of-correct-scope; PATTERN-013 protects against good-probe-of-wrong-scope. Together they constitute a new pattern family (Family 5 — *Discipline-application discipline*) that operates one level above the disciplines they govern. Both ship at `proposed` because their PKA-source empirical base (single-engagement clustering) does not transfer to template-instance use; each template-instance install starts the empirical base from zero and promotes to `validated` on first local firing.
+
+### Changed
+
+**`CLAUDE.md` Productization Discipline gains a reverse-direction clause on the template-baseline / rule-of-three relationship.** The existing template-baseline vs rule-of-three paragraph already named that template-baseline wins on the substrate-must-exist case; the new sentence completes the relationship by naming the converse case explicitly: when rule-of-three says "defer" but template-baseline says "ship" on validated-and-day-1-universal substrate, template-baseline wins because the discipline being closed there is speculation about the *current* operator, which the day-1 universality test resolves on its own terms. The clarification removes a class of ambiguity where the previous wording could be read as "template-baseline only beats rule-of-three when the substrate can't run without it."
+
+**`patterns/README.md` curation layer adds Family 5 (*Discipline-application discipline*)** with PATTERN-011 and PATTERN-013 as the founding members, and adds both to the *Proposed patterns* section. The catalog status table updates from 6 validated / 1 proposed to 6 validated / 3 proposed.
+
+**`setup.py` `pattern_seeds` block seeds PATTERN-011 and PATTERN-013 at `proposed` status.** Re-running `setup.py` on an existing v1.2.0 install adds the two new rows via `INSERT OR IGNORE`; no migration script required. Fresh installs get all 9 patterns from the start.
+
 ## [1.2.0] — 2026-05-25
 
 ### Added
